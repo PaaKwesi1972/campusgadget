@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ImagePlus, X, Home as HomeIcon, MessageCircle, PlusCircle, User } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import MonoLogo from '../components/MonoLogo';
+import PageHeader from '../components/PageHeader';
 import { useUnreadCount } from '../hooks/useUnreadCount';
 
 const CATEGORIES = ['Phones', 'Laptops', 'Tablets', 'Accessories', 'Audio'];
 const CONDITIONS = ['New', 'Like New', 'Good', 'Fair'];
-import { API_URL } from '../lib/api';
+const API_URL = 'http://localhost:5000';
 
 export default function CreateListing() {
   const navigate = useNavigate();
@@ -24,22 +25,22 @@ export default function CreateListing() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [error, setError] = useState('');
 
-  const handlePhotoChange = (e) => {
+  function handlePhotoChange(e) {
     const file = e.target.files[0];
     if (!file) return;
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
-  };
+  }
 
-  const removePhoto = () => {
+  function removePhoto() {
     setPhotoFile(null);
     setPhotoPreview(null);
-  };
+  }
 
   const isValid = title.trim() && price.trim() && description.trim();
   const isBusy = uploadingPhoto || loading;
 
-  const handlePublish = async (e) => {
+  async function handlePublish(e) {
     e.preventDefault();
     if (!isValid) return;
 
@@ -60,9 +61,9 @@ export default function CreateListing() {
         const formData = new FormData();
         formData.append('image', photoFile);
 
-        const uploadRes = await fetch(`${API_URL}/api/upload`, {
+        const uploadRes = await fetch(API_URL + '/api/upload', {
           method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: 'Bearer ' + token },
           body: formData,
         });
         const uploadData = await uploadRes.json();
@@ -73,15 +74,8 @@ export default function CreateListing() {
 
       await apiRequest('/api/listings', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          title,
-          description,
-          price: Number(price),
-          category,
-          condition,
-          imageUrl,
-        }),
+        headers: { Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ title, description, price: Number(price), category, condition, imageUrl }),
       });
 
       setPublished(true);
@@ -91,7 +85,7 @@ export default function CreateListing() {
       setLoading(false);
       setUploadingPhoto(false);
     }
-  };
+  }
 
   const navItems = [
     { key: 'home', label: 'Home', icon: HomeIcon, path: '/home' },
@@ -113,7 +107,7 @@ export default function CreateListing() {
           "{title}" is now live for other verified students to see.
         </p>
         <button
-          onClick={() => navigate('/home')}
+          onClick={function () { navigate('/home'); }}
           className="w-full max-w-xs bg-navy text-gold font-bold tracking-[0.1em] text-sm py-4 rounded-full active:scale-[0.98] hover:bg-navy-light transition"
         >
           BACK TO HOME
@@ -137,161 +131,157 @@ export default function CreateListing() {
         </div>
       )}
 
-      <div className="bg-navy px-6 pt-8 pb-5 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/home')} className="text-white/80 hover:text-white transition">
-            <X className="w-5 h-5" strokeWidth={2.2} />
-          </button>
-          <p className="text-white font-semibold text-[15px]">List a Gadget</p>
-        </div>
+      <PageHeader onBack={function () { navigate('/home'); }} />
 
-        {/* Desktop nav */}
-        <nav className="hidden lg:flex items-center gap-1">
-          {navItems.map(({ key, label, icon: Icon, path }) => (
-            <button
-              key={key}
-              onClick={() => navigate(path)}
-              className="relative flex items-center gap-2 px-4 py-2.5 rounded-full text-[13.5px] font-semibold text-white/70 hover:bg-white/10 hover:text-white transition-colors"
-            >
-              <div className="relative">
-                <Icon className="w-4 h-4" strokeWidth={2.2} />
-                {key === 'messages' && unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 min-w-[14px] h-3.5 px-1 rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </div>
-              {label}
-            </button>
-          ))}
-        </nav>
-      </div>
+      <form onSubmit={handlePublish} className="max-w-lg mx-auto px-6 pt-6 pb-10">
+        <h1 className="font-display text-[1.6rem] font-semibold text-navy leading-tight mb-1.5">
+          List a gadget
+        </h1>
+        <p className="text-slate text-[14px] leading-relaxed mb-8">
+          Add a few details and a photo &mdash; your listing goes live instantly for verified students to see.
+        </p>
 
-      <form onSubmit={handlePublish} className="max-w-lg mx-auto px-6 py-6">
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-6">
             <p className="text-red-600 text-[13px] font-medium">{error}</p>
           </div>
         )}
 
-        <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-          Photo
-        </p>
-        <div className="mb-6">
+        {/* Photo upload — full width, more inviting */}
+        <div className="mb-8">
           {photoPreview ? (
-            <div className="relative aspect-square w-32 rounded-xl overflow-hidden bg-line">
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-line">
               <img src={photoPreview} alt="" className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={removePhoto}
-                className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-navy/80 flex items-center justify-center"
+                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-navy/80 flex items-center justify-center"
               >
-                <X className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                <X className="w-4 h-4 text-white" strokeWidth={2.5} />
               </button>
+              <span className="absolute bottom-3 left-3 text-[11px] font-semibold bg-white/90 text-navy px-2.5 py-1 rounded-full">
+                Tap the X to change photo
+              </span>
             </div>
           ) : (
-            <label className="w-32 aspect-square rounded-xl border-2 border-dashed border-line flex flex-col items-center justify-center gap-1.5 cursor-pointer hover:border-gold-deep transition-colors">
-              <ImagePlus className="w-5 h-5 text-gold-deep" strokeWidth={2} />
-              <span className="text-[10.5px] font-semibold text-slate text-center px-2">Add photo</span>
+            <label className="flex flex-col items-center justify-center gap-2.5 aspect-[4/3] rounded-2xl border-2 border-dashed border-line hover:border-gold-deep bg-[#FAF7F1] transition-colors cursor-pointer">
+              <div className="w-12 h-12 rounded-full bg-[#F9EFE0] flex items-center justify-center">
+                <ImagePlus className="w-5 h-5 text-gold-deep" strokeWidth={2} />
+              </div>
+              <span className="text-[14px] font-semibold text-navy">Add a photo</span>
+              <span className="text-[12px] text-mute">A clear photo helps your listing sell faster</span>
               <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
             </label>
           )}
         </div>
 
-        <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-          Title
-        </label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. MacBook Air M1, 256GB"
-          className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors mb-6"
-        />
+        <div className="h-px bg-line mb-7" />
 
-        <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-          Category
-        </label>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy mb-6 appearance-none"
-        >
-          {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
-        </select>
+        <div className="space-y-6">
+          <div>
+            <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
+              Title
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={function (e) { setTitle(e.target.value); }}
+              placeholder="e.g. MacBook Air M1, 256GB"
+              className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors"
+            />
+          </div>
 
-        <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2.5">
-          Condition
-        </label>
-        <div className="flex gap-2 mb-6">
-          {CONDITIONS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setCondition(c)}
-              className={`px-3.5 py-2 rounded-full text-[12.5px] font-semibold border transition-colors ${
-                condition === c ? 'bg-navy text-gold border-navy' : 'bg-white text-navy border-line'
-              }`}
-            >
-              {c}
-            </button>
-          ))}
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
+                Category
+              </label>
+              <select
+                value={category}
+                onChange={function (e) { setCategory(e.target.value); }}
+                className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy appearance-none"
+              >
+                {CATEGORIES.map(function (cat) { return <option key={cat} value={cat}>{cat}</option>; })}
+              </select>
+            </div>
+            <div className="flex-1">
+              <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
+                Price (GHS)
+              </label>
+              <input
+                type="number"
+                value={price}
+                onChange={function (e) { setPrice(e.target.value); }}
+                placeholder="0.00"
+                className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-3">
+              Condition
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {CONDITIONS.map(function (c) {
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={function () { setCondition(c); }}
+                    className={'px-4 py-2 rounded-full text-[12.5px] font-semibold border transition-colors ' + (condition === c ? 'bg-navy text-gold border-navy' : 'bg-white text-navy border-line')}
+                  >
+                    {c}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
+              Description
+            </label>
+            <textarea
+              value={description}
+              onChange={function (e) { setDescription(e.target.value); }}
+              placeholder="Condition details, reason for selling, meet-up location..."
+              rows={4}
+              className="w-full bg-[#FAF7F1] rounded-xl px-4 py-3.5 text-navy placeholder-mute outline-none border-2 border-transparent focus:border-gold-deep transition-colors resize-none"
+            />
+          </div>
         </div>
-
-        <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-          Price (GHS)
-        </label>
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="0.00"
-          className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors mb-6"
-        />
-
-        <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-          Description
-        </label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Condition details, reason for selling, meet-up location..."
-          rows={3}
-          className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors mb-8 resize-none"
-        />
 
         <button
           type="submit"
           disabled={!isValid || isBusy}
-          className={`w-full font-bold tracking-[0.1em] text-sm py-4 rounded-full transition ${
-            isValid && !isBusy ? 'bg-navy text-gold active:scale-[0.98] hover:bg-navy-light' : 'bg-line text-mute cursor-not-allowed'
-          }`}
+          className={'w-full font-bold tracking-[0.1em] text-sm py-4 rounded-full transition mt-9 ' + (isValid && !isBusy ? 'bg-navy text-gold active:scale-[0.98] hover:bg-navy-light' : 'bg-line text-mute cursor-not-allowed')}
         >
           PUBLISH LISTING
         </button>
       </form>
 
-      {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-navy px-3 pt-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))]">
         <div className="max-w-md mx-auto flex items-center justify-around">
-          {navItems.map(({ key, label, icon: Icon, path }) => (
-            <button key={key} onClick={() => navigate(path)} className="relative flex flex-col items-center gap-1 px-3 py-1">
-              <div className="relative">
-                <Icon className={`w-[18px] h-[18px] ${key === 'sell' ? 'text-gold' : 'text-white/50'}`} strokeWidth={2.2} />
-                {key === 'messages' && unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </div>
-              <span className={`text-[9.5px] font-semibold ${key === 'sell' ? 'text-gold' : 'text-white/50'}`}>
-                {label}
-              </span>
-            </button>
-          ))}
+          {navItems.map(function (item) {
+            const Icon = item.icon;
+            const active = item.key === 'sell';
+            return (
+              <button key={item.key} onClick={function () { navigate(item.path); }} className="relative flex flex-col items-center gap-1 px-3 py-1">
+                <div className="relative">
+                  <Icon className={'w-[18px] h-[18px] ' + (active ? 'text-gold' : 'text-white/50')} strokeWidth={2.2} />
+                  {item.key === 'messages' && unreadCount > 0 && (
+                    <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </div>
+                <span className={'text-[9.5px] font-semibold ' + (active ? 'text-gold' : 'text-white/50')}>{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       </nav>
     </div>
   );
 }
-
