@@ -89,11 +89,11 @@ export async function getMyStats(req, res) {
   }
 }
 
-// PUT update a listing (only the owner can do this)
+// PUT update a listing (only the owner can do this) — now also handles a new photo
 export async function updateListing(req, res) {
   const userId = req.userId;
   const { id } = req.params;
-  const { title, description, price, category, condition, status } = req.body;
+  const { title, description, price, category, condition, status, imageUrl } = req.body;
 
   try {
     const existing = await pool.query('SELECT * FROM listings WHERE id = $1', [id]);
@@ -104,12 +104,15 @@ export async function updateListing(req, res) {
       return res.status(403).json({ success: false, error: 'You can only edit your own listings.' });
     }
 
+    // Keep the existing photo unless a new one was uploaded
+    const finalImageUrl = imageUrl !== undefined && imageUrl !== null ? imageUrl : existing.rows[0].image_url;
+
     const result = await pool.query(
       `UPDATE listings
-       SET title = $1, description = $2, price = $3, category = $4, condition = $5, status = $6
-       WHERE id = $7
+       SET title = $1, description = $2, price = $3, category = $4, condition = $5, status = $6, image_url = $7
+       WHERE id = $8
        RETURNING *`,
-      [title, description, price, category, condition, status, id]
+      [title, description, price, category, condition, status, finalImageUrl, id]
     );
 
     res.json({ success: true, listing: result.rows[0] });

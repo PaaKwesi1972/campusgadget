@@ -25,7 +25,7 @@ const HERO_SLIDES = [
 ];
 
 function fallbackImage(id) {
-  return 'https://picsum.photos/seed/listing' + id + '/400/400';
+  return 'https://picsum.photos/seed/listing' + id + '/500/500';
 }
 
 function timeAgo(dateStr) {
@@ -46,27 +46,27 @@ function ProductCard(props) {
   return (
     <button
       onClick={function () { navigate('/listing/' + item.id); }}
-      className="w-44 sm:w-52 lg:w-56 shrink-0 text-left snap-start group"
+      className="text-left group w-full"
     >
-      <div className="relative aspect-square rounded-2xl overflow-hidden bg-line mb-2.5">
+      <div className="relative aspect-square rounded-2xl overflow-hidden bg-line mb-3 shadow-[0_1px_2px_rgba(18,22,58,0.06),0_8px_20px_-8px_rgba(18,22,58,0.15)] group-hover:shadow-[0_1px_2px_rgba(18,22,58,0.08),0_16px_32px_-12px_rgba(18,22,58,0.25)] transition-shadow duration-300">
         <img
           src={item.image_url || fallbackImage(item.id)}
           alt={item.title}
-          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           loading="lazy"
         />
-        <span className="absolute top-2.5 left-2.5 text-[10px] font-semibold tracking-wide uppercase bg-white/90 text-navy px-2 py-1 rounded-full">
+        <span className="absolute top-3 left-3 text-[10px] font-semibold tracking-wide uppercase bg-white/95 text-navy px-2.5 py-1 rounded-full shadow-sm">
           {item.condition}
         </span>
       </div>
-      <p className="text-[13.5px] font-semibold text-navy leading-snug line-clamp-1">
+      <p className="text-[14px] font-semibold text-navy leading-snug line-clamp-1">
         {item.title}
       </p>
-      <div className="flex items-center gap-1.5 mt-0.5">
-        <p className="text-[14px] font-bold text-navy">
+      <div className="flex items-center gap-1.5 mt-1">
+        <p className="text-[15px] font-bold text-navy">
           GHS {Number(item.price).toLocaleString()}
         </p>
-        <span className="text-mute text-[11px]">&middot; {timeAgo(item.created_at)}</span>
+        <span className="text-mute text-[11.5px]">&middot; {timeAgo(item.created_at)}</span>
       </div>
     </button>
   );
@@ -74,40 +74,11 @@ function ProductCard(props) {
 
 function SkeletonCard() {
   return (
-    <div className="w-44 sm:w-52 lg:w-56 shrink-0">
-      <div className="aspect-square rounded-2xl bg-line animate-pulse mb-2.5" />
+    <div>
+      <div className="aspect-square rounded-2xl bg-line animate-pulse mb-3" />
       <div className="h-3.5 bg-line rounded animate-pulse mb-2 w-3/4" />
       <div className="h-3.5 bg-line rounded animate-pulse w-1/2" />
     </div>
-  );
-}
-
-function ScrollRow(props) {
-  if (props.items.length === 0) return null;
-  return (
-    <section className="mb-9">
-      <div className="flex items-end justify-between px-4 sm:px-6 lg:px-10 mb-3.5">
-        <h2 className="text-[17px] font-bold text-navy">{props.title}</h2>
-      </div>
-      <div className="flex gap-3.5 overflow-x-auto px-4 sm:px-6 lg:px-10 pb-1 snap-x snap-mandatory scrollbar-hide">
-        {props.items.map(function (item) {
-          return <ProductCard key={item.id} item={item} navigate={props.navigate} />;
-        })}
-      </div>
-    </section>
-  );
-}
-
-function SkeletonRow() {
-  return (
-    <section className="mb-9">
-      <div className="px-4 sm:px-6 lg:px-10 mb-3.5">
-        <div className="h-4 bg-line rounded animate-pulse w-32" />
-      </div>
-      <div className="flex gap-3.5 overflow-x-auto px-4 sm:px-6 lg:px-10 pb-1 scrollbar-hide">
-        {[1, 2, 3, 4].map(function (i) { return <SkeletonCard key={i} />; })}
-      </div>
-    </section>
   );
 }
 
@@ -144,12 +115,10 @@ export default function Home() {
     fetchListings();
   }, []);
 
-  // Pick up filters passed from the Filters screen (price range, condition, categories)
   useEffect(function () {
     if (location.state && location.state.filters) {
       setAdvancedFilters(location.state.filters);
       setActiveCategory('All');
-      // Clear the navigation state so refreshing the page doesn't re-apply stale filters
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
@@ -192,12 +161,6 @@ export default function Home() {
     setActiveCategory('All');
     setAdvancedFilters(null);
   }
-
-  const newThisWeek = filteredListings.slice(0, 6);
-  const underFiveHundred = filteredListings.filter(function (item) { return Number(item.price) < 500; });
-  const rest = filteredListings.filter(function (item) {
-    return newThisWeek.indexOf(item) === -1 && underFiveHundred.indexOf(item) === -1;
-  });
 
   const navItems = [
     { key: 'home', label: 'Home', icon: HomeIcon, path: '/home' },
@@ -291,31 +254,47 @@ export default function Home() {
               )}
             </button>
           </div>
+
+          {!isSearching && (
+            <div className="flex gap-2 overflow-x-auto pt-4 pb-1 scrollbar-hide">
+              {CATEGORIES.map(function (cat) {
+                return (
+                  <button
+                    key={cat}
+                    onClick={function () { setActiveCategory(cat); setAdvancedFilters(null); }}
+                    className={'shrink-0 px-4 py-2 rounded-full text-[13px] font-semibold border transition-colors ' + (activeCategory === cat ? 'bg-navy text-gold border-navy' : 'bg-white text-navy border-line')}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </header>
 
       {!isSearching && !hasAdvancedFilters && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mt-3 mb-8">
-          <div className="relative w-full h-[50vh] min-h-[320px] max-h-[500px] rounded-[2rem] overflow-hidden bg-gradient-to-br from-navy-light via-navy to-navy-deep text-left">
+          <div className="relative w-full h-[42vh] min-h-[280px] max-h-[400px] rounded-[2rem] overflow-hidden bg-gradient-to-br from-navy-light via-navy to-navy-deep text-left shadow-[0_20px_50px_-20px_rgba(18,22,58,0.4)]">
             <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_75%_20%,rgba(227,163,53,0.35),transparent_55%)]" />
             <div key={slideIndex} className="relative h-full flex flex-col justify-end p-7 sm:p-10 animate-[slideFade_0.6s_ease-out]">
-              <div className="flex items-center gap-2 mb-5">
-                <div className="w-9 h-9 rounded-full border-2 border-dashed border-gold flex items-center justify-center shrink-0">
-                  <ShieldCheck className="w-4 h-4 text-gold" strokeWidth={2.2} />
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-full border-2 border-dashed border-gold flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-3.5 h-3.5 text-gold" strokeWidth={2.2} />
                 </div>
                 <span className="text-[11px] font-bold tracking-[0.15em] text-gold uppercase">
                   {slide.tag}
                 </span>
               </div>
-              <h2 className="font-display text-white text-[2rem] sm:text-[2.6rem] leading-[1.05] font-semibold max-w-xl">
+              <h2 className="font-display text-white text-[1.8rem] sm:text-[2.3rem] leading-[1.05] font-semibold max-w-xl">
                 {slide.headline} <span className="text-gold">{slide.headlineAccent}</span>
               </h2>
-              <p className="text-white/70 text-[14.5px] mt-4 max-w-md">
+              <p className="text-white/70 text-[14px] mt-3 max-w-md">
                 {slide.sub}
               </p>
             </div>
 
-            <div className="absolute top-6 right-6 sm:right-9 flex gap-1.5">
+            <div className="absolute top-5 right-5 sm:right-8 flex gap-1.5">
               {HERO_SLIDES.map(function (_, i) {
                 return (
                   <button
@@ -327,20 +306,6 @@ export default function Home() {
                 );
               })}
             </div>
-          </div>
-
-          <div className="flex gap-2 overflow-x-auto pt-4 pb-1 scrollbar-hide">
-            {CATEGORIES.map(function (cat) {
-              return (
-                <button
-                  key={cat}
-                  onClick={function () { setActiveCategory(cat); setAdvancedFilters(null); }}
-                  className={'shrink-0 px-4 py-2 rounded-full text-[13px] font-semibold border transition-colors ' + (activeCategory === cat ? 'bg-navy text-gold border-navy' : 'bg-white text-navy border-line')}
-                >
-                  {cat}
-                </button>
-              );
-            })}
           </div>
         </div>
       )}
@@ -359,11 +324,16 @@ export default function Home() {
         </div>
       )}
 
+      {!isFiltered && !loading && !error && listings.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mb-4">
+          <h2 className="text-[17px] font-bold text-navy">Browse listings</h2>
+        </div>
+      )}
+
       {loading && (
-        <>
-          <SkeletonRow />
-          <SkeletonRow />
-        </>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map(function (i) { return <SkeletonCard key={i} />; })}
+        </div>
       )}
 
       {error && !loading && (
@@ -379,37 +349,23 @@ export default function Home() {
             {isFiltered ? 'Try adjusting your filters or search.' : 'Be the first to list a gadget for sale.'}
           </p>
           {isFiltered ? (
-            <button
-              onClick={resetFilters}
-              className="bg-navy text-gold font-bold text-[13px] px-5 py-3 rounded-full"
-            >
+            <button onClick={resetFilters} className="bg-navy text-gold font-bold text-[13px] px-5 py-3 rounded-full">
               CLEAR FILTERS
             </button>
           ) : (
-            <button
-              onClick={function () { navigate('/sell'); }}
-              className="bg-navy text-gold font-bold text-[13px] px-5 py-3 rounded-full"
-            >
+            <button onClick={function () { navigate('/sell'); }} className="bg-navy text-gold font-bold text-[13px] px-5 py-3 rounded-full">
               LIST A GADGET
             </button>
           )}
         </div>
       )}
 
-      {!loading && !error && filteredListings.length > 0 && isFiltered && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
+      {!loading && !error && filteredListings.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mb-10">
           {filteredListings.map(function (item) {
             return <ProductCard key={item.id} item={item} navigate={navigate} />;
           })}
         </div>
-      )}
-
-      {!loading && !error && filteredListings.length > 0 && !isFiltered && (
-        <>
-          <ScrollRow title="New this week" items={newThisWeek} navigate={navigate} />
-          <ScrollRow title="Under GHS 500" items={underFiveHundred} navigate={navigate} />
-          <ScrollRow title="More listings" items={rest} navigate={navigate} />
-        </>
       )}
 
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-navy px-3 pt-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))]">
@@ -429,4 +385,3 @@ export default function Home() {
     </div>
   );
 }
-
