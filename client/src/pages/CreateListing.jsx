@@ -8,7 +8,7 @@ import { useUnreadCount } from '../hooks/useUnreadCount';
 
 const CATEGORIES = ['Phones', 'Laptops', 'Tablets', 'Accessories', 'Audio'];
 const CONDITIONS = ['New', 'Like New', 'Good', 'Fair'];
-const API_URL = 'http://localhost:5000';
+import { apiRequest, API_URL } from '../lib/api';
 
 export default function CreateListing() {
   const navigate = useNavigate();
