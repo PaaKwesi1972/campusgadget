@@ -10,12 +10,14 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Used for gadget listing photos — images only, auto-resized
+// Used for gadget listing photos — accepts common formats including iPhone's HEIC,
+// and converts everything to JPG so it displays correctly in every browser.
 export const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: 'campusgadget',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'],
+    format: 'jpg',
     transformation: [{ width: 800, height: 800, crop: 'limit' }],
   },
 });
@@ -25,10 +27,9 @@ export const documentStorage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: 'campusgadget/documents',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'pdf'],
+    allowed_formats: ['jpg', 'jpeg', 'png', 'pdf', 'heic', 'heif'],
     resource_type: 'auto',
   },
 });
 
 export default cloudinary;
-
