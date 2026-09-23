@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ImagePlus, X, Home as HomeIcon, MessageCircle, PlusCircle, User } from 'lucide-react';
-import { apiRequest } from '../lib/api';
 import MonoLogo from '../components/MonoLogo';
 import PageHeader from '../components/PageHeader';
 import { useUnreadCount } from '../hooks/useUnreadCount';
@@ -285,3 +284,4 @@ export default function CreateListing() {
     </div>
   );
 }
+
