@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Search, SlidersHorizontal, Home as HomeIcon, MessageCircle,
-  PlusCircle, User, ShieldCheck, Bell, X,
+  PlusCircle, User, Bell, X,
 } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useNotificationCount } from '../hooks/useUnreadCount';
@@ -11,16 +11,12 @@ const CATEGORIES = ['All', 'Phones', 'Laptops', 'Tablets', 'Accessories', 'Audio
 
 const HERO_SLIDES = [
   {
-    tag: "Editor's pick \u00b7 Verified sellers only",
-    headline: 'Campus favourites,',
-    headlineAccent: 'this week.',
-    sub: '142 verified students are online right now trading gadgets across Legon.',
+    headline: "This week's campus listings",
+    sub: 'Buy and sell with verified UG students — no strangers, no scams.',
   },
   {
-    tag: 'Why CampusGadget',
-    headline: 'Every seller is a',
-    headlineAccent: 'verified student.',
-    sub: 'One-time password verification through your university email \u2014 no strangers, no scams.',
+    headline: 'Every seller verifies with their university email',
+    sub: 'One OTP check before anyone can list or message.',
   },
 ];
 
@@ -55,7 +51,7 @@ function ProductCard(props) {
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           loading="lazy"
         />
-        <span className="absolute top-3 left-3 text-[10px] font-semibold tracking-wide uppercase bg-white/95 text-navy px-2.5 py-1 rounded-full shadow-sm">
+        <span className="absolute top-3 left-3 text-[10px] font-semibold text-navy bg-white/95 px-2.5 py-1 rounded-full shadow-sm">
           {item.condition}
         </span>
       </div>
@@ -66,7 +62,7 @@ function ProductCard(props) {
         <p className="text-[15px] font-bold text-navy">
           GHS {Number(item.price).toLocaleString()}
         </p>
-        <span className="text-mute text-[11.5px]">&middot; {timeAgo(item.created_at)}</span>
+        <span className="text-mute text-[11.5px]">{timeAgo(item.created_at)}</span>
       </div>
     </button>
   );
@@ -175,9 +171,9 @@ export default function Home() {
     if (advancedFilters.categories.length > 0) parts.push(advancedFilters.categories.join(', '));
     if (advancedFilters.conditions.length > 0) parts.push(advancedFilters.conditions.join(', '));
     if (advancedFilters.minPrice > 0 || advancedFilters.maxPrice < 5000) {
-      parts.push('GHS ' + advancedFilters.minPrice + '\u2013' + advancedFilters.maxPrice);
+      parts.push('GHS ' + advancedFilters.minPrice + '-' + advancedFilters.maxPrice);
     }
-    filterSummary = parts.join(' \u00b7 ');
+    filterSummary = parts.join(', ');
   }
 
   return (
@@ -186,9 +182,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-[10px] tracking-[0.2em] font-bold">
-                <span className="text-navy">CAMPUS</span>
-                <span className="text-gold-deep">GADGET</span>
+              <p className="text-[11px] font-bold">
+                <span className="text-navy">Campus</span>
+                <span className="text-gold-deep">Gadget</span>
               </p>
               <h1 className="font-display text-[1.35rem] font-semibold text-navy leading-none mt-0.5">
                 Hey there
@@ -199,6 +195,7 @@ export default function Home() {
               <button
                 onClick={function () { navigate('/notifications'); }}
                 className="relative w-10 h-10 rounded-full bg-white border border-line flex items-center justify-center mr-2"
+                aria-label="Notifications"
               >
                 <Bell className="w-4 h-4 text-navy" strokeWidth={2.2} />
                 {notificationCount > 0 && (
@@ -238,7 +235,7 @@ export default function Home() {
                 className="w-full bg-transparent outline-none text-[13.5px] text-navy placeholder-mute"
               />
               {isSearching && (
-                <button onClick={function () { setSearchQuery(''); }} className="shrink-0">
+                <button onClick={function () { setSearchQuery(''); }} className="shrink-0" aria-label="Clear search">
                   <X className="w-3.5 h-3.5 text-mute" strokeWidth={2.5} />
                 </button>
               )}
@@ -275,21 +272,12 @@ export default function Home() {
 
       {!isSearching && !hasAdvancedFilters && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mt-3 mb-8">
-          <div className="relative w-full h-[42vh] min-h-[280px] max-h-[400px] rounded-[2rem] overflow-hidden bg-gradient-to-br from-navy-light via-navy to-navy-deep text-left shadow-[0_20px_50px_-20px_rgba(18,22,58,0.4)]">
-            <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_75%_20%,rgba(227,163,53,0.35),transparent_55%)]" />
-            <div key={slideIndex} className="relative h-full flex flex-col justify-end p-7 sm:p-10 animate-[slideFade_0.6s_ease-out]">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-full border-2 border-dashed border-gold flex items-center justify-center shrink-0">
-                  <ShieldCheck className="w-3.5 h-3.5 text-gold" strokeWidth={2.2} />
-                </div>
-                <span className="text-[11px] font-bold tracking-[0.15em] text-gold uppercase">
-                  {slide.tag}
-                </span>
-              </div>
-              <h2 className="font-display text-white text-[1.8rem] sm:text-[2.3rem] leading-[1.05] font-semibold max-w-xl">
-                {slide.headline} <span className="text-gold">{slide.headlineAccent}</span>
+          <div className="relative w-full h-[34vh] min-h-[200px] sm:min-h-[240px] max-h-[320px] rounded-2xl overflow-hidden bg-navy text-left">
+            <div key={slideIndex} className="relative h-full flex flex-col justify-end p-6 sm:p-8 lg:p-10 animate-[slideFade_0.6s_ease-out]">
+              <h2 className="font-display text-white text-[1.4rem] sm:text-[1.8rem] lg:text-[2.1rem] leading-tight font-semibold max-w-lg">
+                {slide.headline}
               </h2>
-              <p className="text-white/70 text-[14px] mt-3 max-w-md">
+              <p className="text-white/65 text-[13.5px] sm:text-[14px] mt-2 max-w-md">
                 {slide.sub}
               </p>
             </div>
@@ -316,7 +304,7 @@ export default function Home() {
             {filteredListings.length} result{filteredListings.length !== 1 ? 's' : ''}
             {isSearching ? ' for "' + searchQuery + '"' : ''}
             {isCategoryFiltered && !isSearching ? ' in ' + activeCategory : ''}
-            {hasAdvancedFilters ? ' \u00b7 ' + filterSummary : ''}
+            {hasAdvancedFilters ? ' — ' + filterSummary : ''}
           </p>
           <button onClick={resetFilters} className="text-gold-deep text-[13px] font-semibold shrink-0">
             Clear
@@ -331,7 +319,7 @@ export default function Home() {
       )}
 
       {loading && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
           {[1, 2, 3, 4, 5, 6, 7, 8].map(function (i) { return <SkeletonCard key={i} />; })}
         </div>
       )}
@@ -349,19 +337,19 @@ export default function Home() {
             {isFiltered ? 'Try adjusting your filters or search.' : 'Be the first to list a gadget for sale.'}
           </p>
           {isFiltered ? (
-            <button onClick={resetFilters} className="bg-navy text-gold font-bold text-[13px] px-5 py-3 rounded-full">
-              CLEAR FILTERS
+            <button onClick={resetFilters} className="bg-navy text-gold font-semibold text-[13.5px] px-5 py-2.5 rounded-lg">
+              Clear filters
             </button>
           ) : (
-            <button onClick={function () { navigate('/sell'); }} className="bg-navy text-gold font-bold text-[13px] px-5 py-3 rounded-full">
-              LIST A GADGET
+            <button onClick={function () { navigate('/sell'); }} className="bg-navy text-gold font-semibold text-[13.5px] px-5 py-2.5 rounded-lg">
+              List a gadget
             </button>
           )}
         </div>
       )}
 
       {!loading && !error && filteredListings.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mb-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 mb-10">
           {filteredListings.map(function (item) {
             return <ProductCard key={item.id} item={item} navigate={navigate} />;
           })}
