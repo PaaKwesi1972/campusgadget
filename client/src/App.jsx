@@ -27,7 +27,7 @@ export default function App() {
   const location = useLocation();
 
   return (
-    <div key={location.pathname} className="animate-[pageFade_0.28s_ease-out]">
+    <div key={location.pathname} className="min-h-screen w-full min-w-0 overflow-x-hidden animate-[pageFade_0.28s_ease-out]">
       <Routes location={location}>
         <Route path="/" element={<Splash />} />
         <Route path="/welcome" element={<Welcome />} />
