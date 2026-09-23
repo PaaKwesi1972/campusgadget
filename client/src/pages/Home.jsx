@@ -2,32 +2,28 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Search, SlidersHorizontal, Home as HomeIcon, MessageCircle,
-  PlusCircle, User, Bell, X,
+  PlusCircle, User, Bell, X, ArrowUpRight, ShieldCheck,
+  MapPin, ChevronRight,
 } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useNotificationCount } from '../hooks/useUnreadCount';
 
 const CATEGORIES = ['All', 'Phones', 'Laptops', 'Tablets', 'Accessories', 'Audio'];
-
-const HERO_SLIDES = [
-  {
-    headline: "This week's campus listings",
-    sub: 'Buy and sell with verified UG students — no strangers, no scams.',
-  },
-  {
-    headline: 'Every seller verifies with their university email',
-    sub: 'One OTP check before anyone can list or message.',
-  },
+const HERO_MESSAGES = [
+  'The useful things are usually nearby.',
+  'A better laptop, without the new-device price.',
+  'Find a charger before the lecture starts.',
+  'Good tech should keep moving around campus.',
 ];
 
 function fallbackImage(id) {
-  return 'https://picsum.photos/seed/listing' + id + '/500/500';
+  return 'https://picsum.photos/seed/campus-gadget-' + id + '/900/900';
 }
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Just now';
+  if (mins < 1) return 'just now';
   if (mins < 60) return mins + 'm ago';
   const hours = Math.floor(mins / 60);
   if (hours < 24) return hours + 'h ago';
@@ -36,68 +32,41 @@ function timeAgo(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
-function ProductCard(props) {
-  const item = props.item;
-  const navigate = props.navigate;
+function ListingCard({ item, navigate, featured }) {
   return (
-    <button
-      onClick={function () { navigate('/listing/' + item.id); }}
-      className="text-left group w-full"
-    >
-      <div className="relative aspect-square rounded-2xl overflow-hidden bg-line mb-3 shadow-[0_1px_2px_rgba(18,22,58,0.06),0_8px_20px_-8px_rgba(18,22,58,0.15)] group-hover:shadow-[0_1px_2px_rgba(18,22,58,0.08),0_16px_32px_-12px_rgba(18,22,58,0.25)] transition-shadow duration-300">
-        <img
-          src={item.image_url || fallbackImage(item.id)}
-          alt={item.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-          loading="lazy"
-        />
-        <span className="absolute top-3 left-3 text-[10px] font-semibold text-navy bg-white/95 px-2.5 py-1 rounded-full shadow-sm">
-          {item.condition}
-        </span>
+    <button onClick={() => navigate('/listing/' + item.id)} className={'group block w-full text-left ' + (featured ? 'sm:col-span-2' : '')}>
+      <div className={'relative mb-3 overflow-hidden bg-[#e9e5dc] ' + (featured ? 'aspect-[1.55] rounded-[24px]' : 'aspect-square rounded-[18px]')}>
+        <img src={item.image_url || fallbackImage(item.id)} alt={item.title} loading="lazy" className="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.035]" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent" />
+        <span className="absolute left-3 top-3 rounded-full bg-[#fbfaf7] px-2.5 py-1 text-[10px] font-bold text-[#10143f]">{item.condition}</span>
+        <span className="absolute bottom-3 left-3 text-[11px] font-semibold text-white/90">{item.category || 'Gadget'} · {timeAgo(item.created_at)}</span>
+        <span className="absolute bottom-3 right-3 grid h-8 w-8 translate-y-2 place-items-center rounded-full bg-[#d7a23a] text-[#10143f] opacity-0 transition duration-200 group-hover:translate-y-0 group-hover:opacity-100"><ArrowUpRight className="h-4 w-4" /></span>
       </div>
-      <p className="text-[14px] font-semibold text-navy leading-snug line-clamp-1">
-        {item.title}
-      </p>
-      <div className="flex items-center gap-1.5 mt-1">
-        <p className="text-[15px] font-bold text-navy">
-          GHS {Number(item.price).toLocaleString()}
-        </p>
-        <span className="text-mute text-[11.5px]">{timeAgo(item.created_at)}</span>
+      <div className="flex items-start justify-between gap-3 px-0.5">
+        <div className="min-w-0"><p className="truncate text-[14px] font-bold tracking-[-0.02em] text-[#10143f]">{item.title}</p><p className="mt-1 text-[11px] text-[#817c72]">{item.condition} condition</p></div>
+        <p className="shrink-0 text-[14px] font-black text-[#10143f]">GHS {Number(item.price).toLocaleString()}</p>
       </div>
     </button>
   );
 }
 
-function SkeletonCard() {
-  return (
-    <div>
-      <div className="aspect-square rounded-2xl bg-line animate-pulse mb-3" />
-      <div className="h-3.5 bg-line rounded animate-pulse mb-2 w-3/4" />
-      <div className="h-3.5 bg-line rounded animate-pulse w-1/2" />
-    </div>
-  );
+function LoadingCard() {
+  return <div><div className="aspect-square animate-pulse rounded-[18px] bg-[#e9e5dc]" /><div className="mt-3 h-3 w-3/4 animate-pulse rounded bg-[#e9e5dc]" /><div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-[#e9e5dc]" /></div>;
 }
 
 export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
+  const notificationCount = useNotificationCount();
   const [activeCategory, setActiveCategory] = useState('All');
-  const [slideIndex, setSlideIndex] = useState(0);
+  const [heroMessage, setHeroMessage] = useState(0);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [advancedFilters, setAdvancedFilters] = useState(null);
-  const notificationCount = useNotificationCount();
 
-  useEffect(function () {
-    const interval = setInterval(function () {
-      setSlideIndex(function (prev) { return (prev + 1) % HERO_SLIDES.length; });
-    }, 4500);
-    return function () { clearInterval(interval); };
-  }, []);
-
-  useEffect(function () {
+  useEffect(() => {
     async function fetchListings() {
       try {
         const data = await apiRequest('/api/listings');
@@ -111,7 +80,7 @@ export default function Home() {
     fetchListings();
   }, []);
 
-  useEffect(function () {
+  useEffect(() => {
     if (location.state && location.state.filters) {
       setAdvancedFilters(location.state.filters);
       setActiveCategory('All');
@@ -119,45 +88,29 @@ export default function Home() {
     }
   }, [location.state]);
 
-  const slide = HERO_SLIDES[slideIndex];
+  useEffect(() => {
+    const interval = setInterval(() => setHeroMessage((current) => (current + 1) % HERO_MESSAGES.length), 4500);
+    return () => clearInterval(interval);
+  }, []);
 
   const query = searchQuery.trim().toLowerCase();
   const isSearching = query.length > 0;
-  const isCategoryFiltered = activeCategory !== 'All';
   const hasAdvancedFilters = advancedFilters && (
-    advancedFilters.categories.length > 0 ||
-    advancedFilters.conditions.length > 0 ||
-    advancedFilters.minPrice > 0 ||
-    advancedFilters.maxPrice < 5000
+    advancedFilters.categories.length > 0 || advancedFilters.conditions.length > 0 || advancedFilters.minPrice > 0 || advancedFilters.maxPrice < 5000
   );
-  const isFiltered = isSearching || isCategoryFiltered || hasAdvancedFilters;
-
-  const filteredListings = listings.filter(function (item) {
-    const matchesSearch = !isSearching ||
-      item.title.toLowerCase().includes(query) ||
-      (item.description && item.description.toLowerCase().includes(query)) ||
-      (item.category && item.category.toLowerCase().includes(query));
-
-    const matchesChipCategory = !isCategoryFiltered || item.category === activeCategory;
-
+  const isFiltered = isSearching || activeCategory !== 'All' || hasAdvancedFilters;
+  const filteredListings = listings.filter((item) => {
+    const matchesSearch = !isSearching || item.title.toLowerCase().includes(query) || (item.description && item.description.toLowerCase().includes(query)) || (item.category && item.category.toLowerCase().includes(query));
+    const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
     let matchesAdvanced = true;
     if (hasAdvancedFilters) {
       const price = Number(item.price);
-      const matchesCategory = advancedFilters.categories.length === 0 || advancedFilters.categories.includes(item.category);
-      const matchesCondition = advancedFilters.conditions.length === 0 || advancedFilters.conditions.includes(item.condition);
-      const matchesPrice = price >= advancedFilters.minPrice && price <= advancedFilters.maxPrice;
-      matchesAdvanced = matchesCategory && matchesCondition && matchesPrice;
+      matchesAdvanced = (advancedFilters.categories.length === 0 || advancedFilters.categories.includes(item.category)) && (advancedFilters.conditions.length === 0 || advancedFilters.conditions.includes(item.condition)) && price >= advancedFilters.minPrice && price <= advancedFilters.maxPrice;
     }
-
-    return matchesSearch && matchesChipCategory && matchesAdvanced;
+    return matchesSearch && matchesCategory && matchesAdvanced;
   });
 
-  function resetFilters() {
-    setSearchQuery('');
-    setActiveCategory('All');
-    setAdvancedFilters(null);
-  }
-
+  const featuredListing = filteredListings[0] || listings[0];
   const navItems = [
     { key: 'home', label: 'Home', icon: HomeIcon, path: '/home' },
     { key: 'messages', label: 'Messages', icon: MessageCircle, path: '/messages' },
@@ -165,211 +118,51 @@ export default function Home() {
     { key: 'profile', label: 'Profile', icon: User, path: '/profile' },
   ];
 
-  let filterSummary = '';
-  if (hasAdvancedFilters) {
-    const parts = [];
-    if (advancedFilters.categories.length > 0) parts.push(advancedFilters.categories.join(', '));
-    if (advancedFilters.conditions.length > 0) parts.push(advancedFilters.conditions.join(', '));
-    if (advancedFilters.minPrice > 0 || advancedFilters.maxPrice < 5000) {
-      parts.push('GHS ' + advancedFilters.minPrice + '-' + advancedFilters.maxPrice);
-    }
-    filterSummary = parts.join(', ');
+  function resetFilters() {
+    setSearchQuery('');
+    setActiveCategory('All');
+    setAdvancedFilters(null);
   }
 
   return (
-    <div className="min-h-screen bg-paper pb-24 lg:pb-10 font-body">
-      <header className="sticky top-0 z-20 bg-paper/95 backdrop-blur-sm pt-5 pb-2.5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-[11px] font-bold">
-                <span className="text-navy">Campus</span>
-                <span className="text-gold-deep">Gadget</span>
-              </p>
-              <h1 className="font-display text-[1.35rem] font-semibold text-navy leading-none mt-0.5">
-                Hey there
-              </h1>
-            </div>
-
-            <div className="flex items-center">
-              <button
-                onClick={function () { navigate('/notifications'); }}
-                className="relative w-10 h-10 rounded-full bg-white border border-line flex items-center justify-center mr-2"
-                aria-label="Notifications"
-              >
-                <Bell className="w-4 h-4 text-navy" strokeWidth={2.2} />
-                {notificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
-                    {notificationCount}
-                  </span>
-                )}
-              </button>
-
-              <nav className="hidden lg:flex items-center gap-1">
-                {navItems.map(function (item) {
-                  const Icon = item.icon;
-                  const active = item.key === 'home';
-                  return (
-                    <button
-                      key={item.key}
-                      onClick={function () { navigate(item.path); }}
-                      className={'flex items-center gap-2 px-4 py-2.5 rounded-full text-[13.5px] font-semibold transition-colors ' + (active ? 'bg-navy text-gold' : 'text-slate hover:bg-navy/5')}
-                    >
-                      <Icon className="w-4 h-4" strokeWidth={2.2} />
-                      {item.label}
-                    </button>
-                  );
-                })}
-              </nav>
-            </div>
+    <div className="min-h-screen bg-[#fbfaf7] pb-24 font-body text-[#10143f] lg:pb-10">
+      <style>{'@keyframes heroFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }'}</style>
+      <header className="border-b border-[#e5e1d8] bg-[#fbfaf7]/95 backdrop-blur lg:sticky lg:top-0 lg:z-20">
+        <div className="mx-auto max-w-[1360px] px-5 sm:px-8 lg:px-12">
+          <div className="flex h-[72px] items-center justify-between gap-5">
+            <button onClick={() => navigate('/home')} className="shrink-0 text-left"><span className="text-[11px] font-black uppercase tracking-[0.2em]">Campus<span className="text-[#c89036]">Gadget</span></span><span className="mt-1 hidden text-[10px] text-[#817c72] sm:block">The student marketplace</span></button>
+            <nav className="hidden items-center gap-7 md:flex"><button onClick={() => navigate('/home')} className="text-[12px] font-black text-[#10143f]">Browse</button><button onClick={() => navigate('/sell')} className="text-[12px] font-semibold text-[#817c72] hover:text-[#10143f]">Sell an item</button><button onClick={() => navigate('/messages')} className="text-[12px] font-semibold text-[#817c72] hover:text-[#10143f]">Messages</button></nav>
+            <div className="flex items-center gap-2"><button onClick={() => navigate('/notifications')} className="relative grid h-10 w-10 place-items-center rounded-full border border-[#e5e1d8] bg-white" aria-label="Notifications"><Bell className="h-4 w-4" />{notificationCount > 0 && <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-[#e36b52] px-1 text-[9px] font-black text-white">{notificationCount}</span>}</button><button onClick={() => navigate('/profile')} className="grid h-10 w-10 place-items-center rounded-full bg-[#10143f] text-[11px] font-black text-[#d7a23a]">CG</button></div>
           </div>
-
-          <div className="flex items-center gap-2.5">
-            <div className="flex-1 flex items-center gap-2.5 bg-white border border-line rounded-full px-4 py-2.5">
-              <Search className="w-4 h-4 text-mute shrink-0" strokeWidth={2.2} />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={function (e) { setSearchQuery(e.target.value); }}
-                placeholder="Search laptops, phones, chargers..."
-                className="w-full bg-transparent outline-none text-[13.5px] text-navy placeholder-mute"
-              />
-              {isSearching && (
-                <button onClick={function () { setSearchQuery(''); }} className="shrink-0" aria-label="Clear search">
-                  <X className="w-3.5 h-3.5 text-mute" strokeWidth={2.5} />
-                </button>
-              )}
-            </div>
-            <button
-              onClick={function () { navigate('/filters'); }}
-              className={'shrink-0 w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition relative ' + (hasAdvancedFilters ? 'bg-gold' : 'bg-navy')}
-              aria-label="Open filters"
-            >
-              <SlidersHorizontal className={'w-4 h-4 ' + (hasAdvancedFilters ? 'text-navy' : 'text-gold')} strokeWidth={2.2} />
-              {hasAdvancedFilters && (
-                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 border-2 border-paper" />
-              )}
-            </button>
-          </div>
-
-          {!isSearching && (
-            <div className="flex gap-2 overflow-x-auto pt-4 pb-1 scrollbar-hide">
-              {CATEGORIES.map(function (cat) {
-                return (
-                  <button
-                    key={cat}
-                    onClick={function () { setActiveCategory(cat); setAdvancedFilters(null); }}
-                    className={'shrink-0 px-4 py-2 rounded-full text-[13px] font-semibold border transition-colors ' + (activeCategory === cat ? 'bg-navy text-gold border-navy' : 'bg-white text-navy border-line')}
-                  >
-                    {cat}
-                  </button>
-                );
-              })}
-            </div>
-          )}
         </div>
       </header>
 
-      {!isSearching && !hasAdvancedFilters && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mt-3 mb-8">
-          <div className="relative w-full h-[34vh] min-h-[200px] sm:min-h-[240px] max-h-[320px] rounded-2xl overflow-hidden bg-navy text-left">
-            <div key={slideIndex} className="relative h-full flex flex-col justify-end p-6 sm:p-8 lg:p-10 animate-[slideFade_0.6s_ease-out]">
-              <h2 className="font-display text-white text-[1.4rem] sm:text-[1.8rem] lg:text-[2.1rem] leading-tight font-semibold max-w-lg">
-                {slide.headline}
-              </h2>
-              <p className="text-white/65 text-[13.5px] sm:text-[14px] mt-2 max-w-md">
-                {slide.sub}
-              </p>
-            </div>
-
-            <div className="absolute top-5 right-5 sm:right-8 flex gap-1.5">
-              {HERO_SLIDES.map(function (_, i) {
-                return (
-                  <button
-                    key={i}
-                    onClick={function () { setSlideIndex(i); }}
-                    className={'h-1.5 rounded-full transition-all duration-300 ' + (i === slideIndex ? 'w-6 bg-gold' : 'w-1.5 bg-white/30')}
-                    aria-label={'Go to slide ' + (i + 1)}
-                  />
-                );
-              })}
-            </div>
+      <main className="mx-auto max-w-[1360px] px-5 sm:px-8 lg:px-12">
+        <section className="grid gap-8 py-9 sm:py-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-14 lg:py-16">
+          <div>
+            <p className="mb-5 text-[10px] font-black uppercase tracking-[0.22em] text-[#c89036]">University of Ghana · student market</p>
+            <h1 key={heroMessage} className="max-w-[560px] animate-[heroFade_650ms_ease-out] font-display text-[3rem] leading-[0.94] tracking-[-0.065em] sm:text-[4.6rem]">{HERO_MESSAGES[heroMessage]}</h1>
+            <p className="mt-6 max-w-[430px] text-[14px] leading-7 text-[#77736c]">Buy and sell useful tech with people who share your campus. No strangers, no inflated shop prices.</p>
+            <div className="mt-8 flex flex-wrap items-center gap-5"><button onClick={() => navigate('/sell')} className="rounded-full bg-[#10143f] px-5 py-3 text-[12px] font-black text-[#d7a23a] transition hover:bg-[#c89036] hover:text-[#10143f] active:scale-[0.98]">List an item</button><div className="flex items-center gap-2" aria-label="Hero messages">{HERO_MESSAGES.map((message, index) => <button key={message} onClick={() => setHeroMessage(index)} aria-label={'Show message ' + (index + 1)} className={'h-1.5 rounded-full transition-all duration-300 ' + (heroMessage === index ? 'w-8 bg-[#c89036]' : 'w-1.5 bg-[#c9c3b8]')} />)}</div></div>
           </div>
-        </div>
-      )}
+          <div className="relative min-h-[330px] overflow-hidden rounded-[26px] bg-[#10143f] sm:min-h-[430px]">
+            {featuredListing ? <><img src={featuredListing.image_url || fallbackImage(featuredListing.id)} alt={featuredListing.title} className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-700 hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-[#10143f] via-[#10143f]/10 to-transparent" /><div className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-4 sm:inset-x-7 sm:bottom-7"><div><p className="mb-2 text-[10px] font-black uppercase tracking-[0.18em] text-[#d7a23a]">Worth a look</p><p className="max-w-[280px] text-[20px] font-black leading-tight text-white sm:text-[25px]">{featuredListing.title}</p><p className="mt-2 text-[13px] text-white/70">GHS {Number(featuredListing.price).toLocaleString()} · {featuredListing.condition}</p></div><button onClick={() => navigate('/listing/' + featuredListing.id)} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#d7a23a] text-[#10143f] transition hover:bg-white" aria-label="View featured listing"><ArrowUpRight className="h-5 w-5" /></button></div></> : <div className="flex h-full flex-col justify-end p-7 text-white"><ShieldCheck className="mb-auto h-6 w-6 text-[#d7a23a]" /><p className="max-w-[310px] font-display text-[2.3rem] leading-none">Verified students. Better handoffs.</p></div>}
+          </div>
+        </section>
 
-      {isFiltered && !loading && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mt-3 mb-6 flex items-center justify-between gap-3">
-          <p className="text-mute text-[13px]">
-            {filteredListings.length} result{filteredListings.length !== 1 ? 's' : ''}
-            {isSearching ? ' for "' + searchQuery + '"' : ''}
-            {isCategoryFiltered && !isSearching ? ' in ' + activeCategory : ''}
-            {hasAdvancedFilters ? ' — ' + filterSummary : ''}
-          </p>
-          <button onClick={resetFilters} className="text-gold-deep text-[13px] font-semibold shrink-0">
-            Clear
-          </button>
-        </div>
-      )}
+        <section className="border-y border-[#e5e1d8] py-5"><div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><div className="scrollbar-hide flex gap-2 overflow-x-auto">{CATEGORIES.map((category) => <button key={category} onClick={() => { setActiveCategory(category); setAdvancedFilters(null); }} className={'shrink-0 rounded-full px-4 py-2 text-[11px] font-black transition ' + (activeCategory === category ? 'bg-[#10143f] text-[#d7a23a]' : 'bg-white text-[#77736c] hover:bg-[#f0ede7]')}>{category}</button>)}</div><div className="flex items-center gap-2 lg:w-[360px]"><div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-[#e5e1d8] bg-white px-4 py-2.5"><Search className="h-4 w-4 shrink-0 text-[#9a958c]" /><input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search listings" className="w-full bg-transparent text-[12px] outline-none placeholder:text-[#aaa59c]" />{isSearching && <button onClick={() => setSearchQuery('')}><X className="h-3.5 w-3.5 text-[#77736c]" /></button>}</div><button onClick={() => navigate('/filters')} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#10143f] text-[#d7a23a]" aria-label="Open filters"><SlidersHorizontal className="h-4 w-4" /></button></div></div></section>
 
-      {!isFiltered && !loading && !error && listings.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mb-4">
-          <h2 className="text-[17px] font-bold text-navy">Browse listings</h2>
-        </div>
-      )}
+        <section className="py-10 sm:py-12"><div className="mb-7 flex items-end justify-between gap-4"><div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#9a958c]">Browse the exchange</p><h2 className="mt-1 font-display text-[2rem] tracking-[-0.05em]">Recently listed</h2></div>{isFiltered && !loading && <div className="flex items-center gap-3 text-[12px] text-[#77736c]"><span>{filteredListings.length} result{filteredListings.length !== 1 ? 's' : ''}</span><button onClick={resetFilters} className="font-black text-[#c89036]">Clear</button></div>}</div>
+          {loading && <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">{[1, 2, 3, 4, 5, 6, 7, 8].map((i) => <LoadingCard key={i} />)}</div>}
+          {error && !loading && <p className="py-10 text-center text-[13px] text-[#c34f3b]">{error}</p>}
+          {!loading && !error && filteredListings.length === 0 && <div className="border-y border-[#e5e1d8] py-16 text-center"><p className="font-black">{isFiltered ? 'No matching listings' : 'No listings yet'}</p><p className="mt-2 text-[13px] text-[#77736c]">{isFiltered ? 'Try a different category or search.' : 'Be the first to list a gadget.'}</p></div>}
+          {!loading && !error && filteredListings.length > 0 && <div className="grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 lg:grid-cols-4">{filteredListings.map((item, index) => <ListingCard key={item.id} item={item} navigate={navigate} featured={index === 0} />)}</div>}
+        </section>
 
-      {loading && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map(function (i) { return <SkeletonCard key={i} />; })}
-        </div>
-      )}
+        <section className="mb-8 grid border-t border-[#e5e1d8] py-8 sm:grid-cols-3 sm:gap-8"><div className="mb-5 sm:mb-0"><p className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck className="h-4 w-4 text-[#c89036]" /> University email verified</p><p className="mt-2 max-w-[250px] text-[12px] leading-relaxed text-[#77736c]">Every seller confirms their student identity before listing or messaging.</p></div><div className="mb-5 sm:mb-0"><p className="flex items-center gap-2 text-[12px] font-black"><MapPin className="h-4 w-4 text-[#c89036]" /> Meet close to campus</p><p className="mt-2 max-w-[250px] text-[12px] leading-relaxed text-[#77736c]">A simple handoff is usually the safest one.</p></div><button onClick={() => navigate('/sell')} className="flex items-start justify-between text-left text-[12px] font-black hover:text-[#c89036]">Have something to sell? <ChevronRight className="h-4 w-4" /></button></section>
+      </main>
 
-      {error && !loading && (
-        <p className="text-center text-red-500 text-[14px] py-10">{error}</p>
-      )}
-
-      {!loading && !error && filteredListings.length === 0 && (
-        <div className="text-center py-16 px-6">
-          <p className="text-navy font-semibold mb-2">
-            {isFiltered ? 'No matches found' : 'No listings yet'}
-          </p>
-          <p className="text-mute text-[13.5px] mb-5">
-            {isFiltered ? 'Try adjusting your filters or search.' : 'Be the first to list a gadget for sale.'}
-          </p>
-          {isFiltered ? (
-            <button onClick={resetFilters} className="bg-navy text-gold font-semibold text-[13.5px] px-5 py-2.5 rounded-lg">
-              Clear filters
-            </button>
-          ) : (
-            <button onClick={function () { navigate('/sell'); }} className="bg-navy text-gold font-semibold text-[13.5px] px-5 py-2.5 rounded-lg">
-              List a gadget
-            </button>
-          )}
-        </div>
-      )}
-
-      {!loading && !error && filteredListings.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 mb-10">
-          {filteredListings.map(function (item) {
-            return <ProductCard key={item.id} item={item} navigate={navigate} />;
-          })}
-        </div>
-      )}
-
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-navy px-3 pt-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))]">
-        <div className="max-w-md mx-auto flex items-center justify-around">
-          {navItems.map(function (item) {
-            const Icon = item.icon;
-            const active = item.key === 'home';
-            return (
-              <button key={item.key} onClick={function () { navigate(item.path); }} className="flex flex-col items-center gap-1 px-3 py-1">
-                <Icon className={'w-[18px] h-[18px] ' + (active ? 'text-gold' : 'text-white/50')} strokeWidth={2.2} />
-                <span className={'text-[9.5px] font-semibold ' + (active ? 'text-gold' : 'text-white/50')}>{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
+      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-[#25284b] bg-[#10143f] px-3 pb-[calc(0.6rem+env(safe-area-inset-bottom))] pt-2 lg:hidden"><div className="mx-auto flex max-w-md items-center justify-around">{navItems.map(({ key, label, icon: Icon, path }) => <button key={key} onClick={() => navigate(path)} className={'flex flex-col items-center gap-1 px-3 py-1 ' + (key === 'home' ? 'text-[#d7a23a]' : 'text-white/50')}><Icon className="h-[18px] w-[18px]" /><span className="text-[9px] font-bold">{label}</span></button>)}</div></nav>
     </div>
   );
 }
