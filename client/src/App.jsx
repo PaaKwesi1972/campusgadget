@@ -22,12 +22,14 @@ import AccountSettings from './pages/AccountSettings';
 import HelpSupport from './pages/HelpSupport';
 import Filters from './pages/Filters';
 import Notifications from './pages/Notifications';
+import DashboardLayout from './components/DashboardLayout';
 
 export default function App() {
   const location = useLocation();
+  const dashboard = (element) => <DashboardLayout>{element}</DashboardLayout>;
 
   return (
-    <div key={location.pathname} className="min-h-screen w-full min-w-0 overflow-x-hidden animate-[pageFade_0.28s_ease-out]">
+    <div key={location.pathname} className="animate-[pageFade_0.28s_ease-out]">
       <Routes location={location}>
         <Route path="/" element={<Splash />} />
         <Route path="/welcome" element={<Welcome />} />
@@ -37,22 +39,22 @@ export default function App() {
         <Route path="/verify-otp" element={<OtpVerification />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/listing/:id" element={<ListingDetail />} />
-        <Route path="/listing/:id/edit" element={<EditListing />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/messages/:listingId" element={<Chat />} />
-        <Route path="/messages/thread/:conversationId" element={<Chat />} />
-        <Route path="/sell" element={<CreateListing />} />
-        <Route path="/vendor-registration" element={<VendorRegistration />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/listing/:id/review" element={<RatingsReviews />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/my-listings" element={<MyListings />} />
-        <Route path="/saved" element={<SavedItems />} />
-        <Route path="/settings" element={<AccountSettings />} />
-        <Route path="/support" element={<HelpSupport />} />
-        <Route path="/filters" element={<Filters />} />
-        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/listing/:id" element={dashboard(<ListingDetail />)} />
+        <Route path="/listing/:id/edit" element={dashboard(<EditListing />)} />
+        <Route path="/messages" element={dashboard(<Messages />)} />
+        <Route path="/messages/:listingId" element={dashboard(<Chat />)} />
+        <Route path="/messages/thread/:conversationId" element={dashboard(<Chat />)} />
+        <Route path="/sell" element={dashboard(<CreateListing />)} />
+        <Route path="/vendor-registration" element={dashboard(<VendorRegistration />)} />
+        <Route path="/profile" element={dashboard(<Profile />)} />
+        <Route path="/listing/:id/review" element={dashboard(<RatingsReviews />)} />
+        <Route path="/admin" element={dashboard(<AdminDashboard />)} />
+        <Route path="/my-listings" element={dashboard(<MyListings />)} />
+        <Route path="/saved" element={dashboard(<SavedItems />)} />
+        <Route path="/settings" element={dashboard(<AccountSettings />)} />
+        <Route path="/support" element={dashboard(<HelpSupport />)} />
+        <Route path="/filters" element={dashboard(<Filters />)} />
+        <Route path="/notifications" element={dashboard(<Notifications />)} />
       </Routes>
     </div>
   );

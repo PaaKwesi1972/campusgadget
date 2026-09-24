@@ -54,3 +54,4 @@ export function DashboardFooter() {
 export function dashboardPageClass() {
   return 'min-h-screen overflow-x-hidden bg-[#fbfaf7] pb-24 font-body text-[#10143f] lg:pb-10 lg:pl-64';
 }
+
