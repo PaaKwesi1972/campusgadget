@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UploadCloud, Clock, CheckCircle2, FileCheck } from 'lucide-react';
-import { apiRequest } from '../lib/api';
+import { apiRequest, API_URL } from '../lib/api';
 import PageLoader from '../components/PageLoader';
 import PageHeader from '../components/PageHeader';
-
-import { API_URL } from '../lib/api';
 
 export default function VendorRegistration() {
   const navigate = useNavigate();
