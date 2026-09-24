@@ -1,58 +1,25 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, Mail, MessageCircle } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
+import { ChevronDown, Mail, MessageCircle, Search, ShieldCheck, ArrowUpRight } from 'lucide-react';
 
 const FAQS = [
-  { q: 'How does student verification work?', a: 'When you sign up, you enter your University of Ghana email address. We send a 6-digit one-time code to that email, entering it confirms you are a real, currently enrolled student before you can list or message anyone.' },
-  { q: 'Is it safe to meet a buyer or seller in person?', a: 'CampusGadget only verifies identity through university email, it does not supervise in-person meet-ups. Always meet in busy, public campus locations during daylight hours, and consider bringing a friend for higher-value items.' },
-  { q: 'What happens if a seller does not show up?', a: 'You can report the user directly from your conversation with them. Our admin team reviews every report and can suspend accounts that repeatedly fail to honor agreed deals.' },
-  { q: 'How do I become a vendor instead of a student seller?', a: 'From the Welcome screen, choose to register as an off-campus vendor. Off-campus businesses go through a separate review process, including a business registration document, before their listings go live.' },
-  { q: 'Can I edit or delete a listing after posting it?', a: 'Yes, go to Profile, then My Listings, tap the listing, and you will find options to edit its details or remove it entirely.' },
-  { q: 'Why was my listing flagged or removed?', a: 'Listings can be flagged by other students for reasons like suspected counterfeit items or unrealistic pricing. An admin reviews every flag before any listing is removed, you will be notified either way.' },
+  { q: 'How does student verification work?', a: 'When you sign up, you enter your University of Ghana email address. We send a 6-digit one-time code to that email before you can list or message anyone.' },
+  { q: 'Is it safe to meet a buyer or seller in person?', a: 'CampusGadget verifies identity but does not supervise meet-ups. Meet in busy, public campus locations during daylight hours, and bring a friend for higher-value items.' },
+  { q: 'What happens if a seller does not show up?', a: 'You can report the user directly from your conversation. Our admin team reviews reports and can suspend accounts that repeatedly fail to honor agreed deals.' },
+  { q: 'How do I become a vendor instead of a student seller?', a: 'Choose vendor registration from your account. Off-campus businesses go through a separate review process before their listings go live.' },
+  { q: 'Can I edit or delete a listing after posting it?', a: 'Yes. Go to Profile, then My Listings, open the listing, and choose whether to edit its details or remove it.' },
+  { q: 'Why was my listing flagged or removed?', a: 'Listings may be flagged for suspected counterfeit items, misleading details, or unrealistic pricing. An admin reviews every flag before taking action.' },
 ];
 
 export default function HelpSupport() {
   const navigate = useNavigate();
   const [openIndex, setOpenIndex] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const query = searchQuery.trim().toLowerCase();
+  const visibleFaqs = FAQS.filter((item) => !query || item.q.toLowerCase().includes(query) || item.a.toLowerCase().includes(query));
 
-  return (
-    <div className="min-h-screen bg-white font-body">
-      <PageHeader onBack={() => navigate('/profile')} />
-
-      <div className="max-w-lg mx-auto px-6 pt-6 pb-10">
-        <h1 className="font-display text-[1.5rem] font-semibold text-navy mb-1.5">Help and Support</h1>
-        <p className="text-slate text-[13.5px] mb-7">Common questions from students using CampusGadget.</p>
-
-        <div className="mb-8">
-          {FAQS.map((item, i) => (
-            <div key={i} className="border-b border-line">
-              <button onClick={() => setOpenIndex(openIndex === i ? null : i)} className="w-full flex items-center justify-between gap-4 py-4 text-left">
-                <span className="font-semibold text-navy text-[14px]">{item.q}</span>
-                <ChevronDown className={`w-4 h-4 text-mute shrink-0 transition-transform ${openIndex === i ? 'rotate-180' : ''}`} strokeWidth={2.2} />
-              </button>
-              {openIndex === i && (
-                <p className="text-slate text-[13.5px] leading-relaxed pb-4 pr-6">{item.a}</p>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="bg-[#F9EFE0] rounded-2xl p-5">
-          <p className="font-semibold text-navy text-[14px] mb-1">Still need help?</p>
-          <p className="text-slate text-[13px] leading-relaxed mb-4">Our support team typically replies within 24 hours.</p>
-          <div className="flex flex-col gap-2.5">
-            <a href="mailto:support@campusgadget.ug.edu.gh" className="flex items-center gap-2.5 bg-white rounded-xl px-4 py-3">
-              <Mail className="w-4 h-4 text-gold-deep shrink-0" strokeWidth={2} />
-              <span className="text-navy text-[13.5px] font-medium">support@campusgadget.ug.edu.gh</span>
-            </a>
-            <button onClick={() => navigate('/messages')} className="flex items-center gap-2.5 bg-white rounded-xl px-4 py-3">
-              <MessageCircle className="w-4 h-4 text-gold-deep shrink-0" strokeWidth={2} />
-              <span className="text-navy text-[13.5px] font-medium">Message support directly</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <div className="min-h-[calc(100vh-72px)] bg-[#fbfaf7] px-5 py-7 font-body text-[#10143f] sm:px-8 lg:px-10 lg:py-10"><div className="mx-auto max-w-[1120px]">
+    <section className="mb-8 border-b border-[#e5e1d8] pb-8"><p className="mb-2 text-[10px] font-black uppercase tracking-[0.22em] text-[#c89036]">Support centre</p><h1 className="font-body text-[2.25rem] font-black tracking-[-0.05em] sm:text-[3rem]">How can we help?</h1><p className="mt-2 max-w-[560px] text-[13px] leading-6 text-[#77736c]">Find quick answers about buying, selling, verification, and safe campus handoffs.</p><div className="mt-6 flex max-w-[540px] items-center gap-2 rounded-full border border-[#e5e1d8] bg-white px-4 py-3"><Search className="h-4 w-4 text-[#9a958c]" /><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search help articles" className="w-full bg-transparent text-[12px] outline-none placeholder:text-[#aaa59c]" /></div></section>
+    <section className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_300px]"><div><div className="mb-4 flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#aaa59c]">Frequently asked</p><p className="mt-1 text-[13px] font-bold">{visibleFaqs.length} article{visibleFaqs.length === 1 ? '' : 's'}</p></div></div>{visibleFaqs.length === 0 ? <div className="rounded-2xl border border-dashed border-[#d9d2c6] bg-white p-12 text-center text-[13px] text-[#817c72]">No help articles match your search.</div> : <div className="overflow-hidden rounded-[24px] border border-[#e5e1d8] bg-white">{visibleFaqs.map((item, index) => <div key={item.q} className="border-b border-[#eeeae3] last:border-0"><button onClick={() => setOpenIndex(openIndex === index ? null : index)} className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6"><span className="text-[13px] font-black">{item.q}</span><ChevronDown className={'h-4 w-4 shrink-0 text-[#c89036] transition ' + (openIndex === index ? 'rotate-180' : '')} /></button>{openIndex === index && <p className="px-5 pb-5 pr-10 text-[13px] leading-6 text-[#77736c] sm:px-6">{item.a}</p>}</div>)}</div>}</div><aside className="h-fit rounded-[26px] bg-[#10143f] p-6 text-white"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#d7a23a]">Need a person?</p><h2 className="mt-4 text-[22px] font-black leading-tight tracking-[-0.04em]">We are here to help.</h2><p className="mt-4 text-[12px] leading-6 text-white/65">Our support team typically replies within 24 hours.</p><div className="mt-7 space-y-2.5"><a href="mailto:support@campusgadget.ug.edu.gh" className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 text-[12px] font-black text-[#10143f]"><Mail className="h-4 w-4 text-[#c89036]" /> Email support</a><button onClick={() => navigate('/messages')} className="flex w-full items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-left text-[12px] font-black text-white"><MessageCircle className="h-4 w-4 text-[#d7a23a]" /> Message support <ArrowUpRight className="ml-auto h-3.5 w-3.5" /></button></div><div className="mt-7 flex gap-2 border-t border-white/15 pt-4"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#d7a23a]" /><p className="text-[11px] leading-5 text-white/55">For urgent safety concerns, stop the transaction and report the conversation.</p></div></aside></section>
+  </div></div>;
 }

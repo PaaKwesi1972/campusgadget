@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Lock, Mail, ChevronDown, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
+import { Bell, Lock, Mail, ChevronDown, Eye, EyeOff, CheckCircle2, UserRound, ShieldCheck } from 'lucide-react';
+
+function FieldLabel({ children }) {
+  return <label className="mb-2 block text-[10px] font-black uppercase tracking-[0.18em] text-[#aaa59c]">{children}</label>;
+}
 
 export default function AccountSettings() {
   const navigate = useNavigate();
@@ -9,7 +12,6 @@ export default function AccountSettings() {
   const [name, setName] = useState(currentUser.full_name || '');
   const [notifications, setNotifications] = useState(true);
   const [saved, setSaved] = useState(false);
-
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -19,199 +21,36 @@ export default function AccountSettings() {
   const [passwordError, setPasswordError] = useState('');
   const [passwordSaved, setPasswordSaved] = useState(false);
 
-  const handleSave = (e) => {
-    e.preventDefault();
+  function handleSave(event) {
+    event.preventDefault();
+    if (name.trim()) {
+      localStorage.setItem('user', JSON.stringify({ ...currentUser, full_name: name.trim() }));
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
-  };
+  }
 
   const passwordsMatch = newPassword && newPassword === confirmPassword;
   const newPasswordValid = newPassword.length >= 8;
   const canSubmitPassword = currentPassword && newPasswordValid && passwordsMatch;
 
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault();
+  function handlePasswordSubmit(event) {
+    event.preventDefault();
     setPasswordError('');
-
-    if (!currentPassword) {
-      setPasswordError('Enter your current password.');
-      return;
-    }
-    if (!newPasswordValid) {
-      setPasswordError('New password must be at least 8 characters.');
-      return;
-    }
-    if (!passwordsMatch) {
-      setPasswordError('New passwords do not match.');
-      return;
-    }
-
+    if (!currentPassword) return setPasswordError('Enter your current password.');
+    if (!newPasswordValid) return setPasswordError('New password must be at least 8 characters.');
+    if (!passwordsMatch) return setPasswordError('New passwords do not match.');
     setPasswordSaved(true);
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
-    setTimeout(() => {
-      setPasswordSaved(false);
-      setPasswordOpen(false);
-    }, 1800);
-  };
+    setTimeout(() => { setPasswordSaved(false); setPasswordOpen(false); }, 1800);
+  }
 
-  return (
-    <div className="min-h-screen bg-white font-body">
-      <PageHeader onBack={() => navigate('/profile')} />
-
-      <div className="max-w-md mx-auto px-6 pt-6 pb-10">
-        <h1 className="font-display text-[1.5rem] font-semibold text-navy mb-6">Account Settings</h1>
-
-        <form onSubmit={handleSave}>
-          <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-            Full Name
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy transition-colors mb-6"
-          />
-
-          <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-            Email
-          </label>
-          <div className="flex items-center gap-2 py-2.5 border-b-2 border-line mb-1">
-            <Mail className="w-4 h-4 text-mute shrink-0" strokeWidth={2} />
-            <p className="text-mute text-[14.5px]">{currentUser.email}</p>
-          </div>
-          <p className="text-mute text-[11.5px] mb-6">Verified email can't be changed here.</p>
-
-          <button
-            type="submit"
-            className="w-full bg-navy text-gold font-bold tracking-[0.1em] text-sm py-4 rounded-full active:scale-[0.98] hover:bg-navy-light transition mt-4"
-          >
-            {saved ? 'SAVED ✓' : 'SAVE CHANGES'}
-          </button>
-        </form>
-
-        <div className="mt-8">
-          <div className="border-b border-line">
-            <button
-              type="button"
-              onClick={() => setPasswordOpen((o) => !o)}
-              className="w-full flex items-center gap-3 py-3.5 text-left"
-            >
-              <Lock className="w-[18px] h-[18px] text-navy shrink-0" strokeWidth={2} />
-              <span className="flex-1 text-navy font-semibold text-[14px]">Change Password</span>
-              <ChevronDown
-                className={`w-4 h-4 text-mute shrink-0 transition-transform ${passwordOpen ? 'rotate-180' : ''}`}
-                strokeWidth={2.2}
-              />
-            </button>
-
-            {passwordOpen && (
-              <div className="pb-5">
-                {passwordSaved ? (
-                  <div className="flex items-center gap-2.5 bg-[#F9EFE0] rounded-xl px-4 py-3.5 mb-4">
-                    <CheckCircle2 className="w-4 h-4 text-gold-deep shrink-0" strokeWidth={2} />
-                    <p className="text-gold-deep text-[13px] font-semibold">Password updated successfully.</p>
-                  </div>
-                ) : (
-                  <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-                        Current Password
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showCurrent ? 'text' : 'password'}
-                          value={currentPassword}
-                          onChange={(e) => setCurrentPassword(e.target.value)}
-                          placeholder="••••••••"
-                          className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 pr-8 text-navy placeholder-mute transition-colors"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowCurrent((s) => !s)}
-                          className="absolute right-0 top-1/2 -translate-y-1/2 text-mute"
-                        >
-                          {showCurrent ? <EyeOff className="w-4 h-4" strokeWidth={2} /> : <Eye className="w-4 h-4" strokeWidth={2} />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-                        New Password
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showNew ? 'text' : 'password'}
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          placeholder="At least 8 characters"
-                          className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 pr-8 text-navy placeholder-mute transition-colors"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowNew((s) => !s)}
-                          className="absolute right-0 top-1/2 -translate-y-1/2 text-mute"
-                        >
-                          {showNew ? <EyeOff className="w-4 h-4" strokeWidth={2} /> : <Eye className="w-4 h-4" strokeWidth={2} />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-                        Confirm New Password
-                      </label>
-                      <input
-                        type={showNew ? 'text' : 'password'}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Re-enter new password"
-                        className={`w-full bg-transparent border-b-2 outline-none py-2.5 text-navy placeholder-mute transition-colors ${
-                          confirmPassword && !passwordsMatch ? 'border-red-400' : 'border-line focus:border-gold-deep'
-                        }`}
-                      />
-                    </div>
-
-                    {passwordError && (
-                      <p className="text-red-500 text-[12px]">{passwordError}</p>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={!canSubmitPassword}
-                      className={`w-full font-bold tracking-[0.1em] text-[13px] py-3.5 rounded-full transition ${
-                        canSubmitPassword
-                          ? 'bg-navy text-gold active:scale-[0.98] hover:bg-navy-light'
-                          : 'bg-line text-mute cursor-not-allowed'
-                      }`}
-                    >
-                      UPDATE PASSWORD
-                    </button>
-                  </form>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="w-full flex items-center gap-3 py-3.5 border-b border-line">
-            <Bell className="w-[18px] h-[18px] text-navy shrink-0" strokeWidth={2} />
-            <span className="flex-1 text-navy font-semibold text-[14px]">Push Notifications</span>
-            <button
-              type="button"
-              onClick={() => setNotifications((n) => !n)}
-              className={`w-11 h-6 rounded-full transition-colors relative ${notifications ? 'bg-navy' : 'bg-line'}`}
-            >
-              <span
-                className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${
-                  notifications ? 'left-[22px]' : 'left-0.5'
-                }`}
-              />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <div className="min-h-[calc(100vh-72px)] bg-[#fbfaf7] px-5 py-7 font-body text-[#10143f] sm:px-8 lg:px-10 lg:py-10"><div className="mx-auto max-w-[1120px]">
+    <section className="mb-8 border-b border-[#e5e1d8] pb-8"><p className="mb-2 text-[10px] font-black uppercase tracking-[0.22em] text-[#c89036]">Account workspace</p><h1 className="font-body text-[2.25rem] font-black tracking-[-0.05em] sm:text-[3rem]">Settings</h1><p className="mt-2 text-[13px] leading-6 text-[#77736c]">Keep your profile details and account preferences up to date.</p></section>
+    <section className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_300px]"><div className="space-y-6"><form onSubmit={handleSave} className="rounded-[26px] border border-[#e5e1d8] bg-white p-5 shadow-[0_12px_30px_rgba(16,20,63,0.04)] sm:p-7"><div className="mb-6 flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-[#f7efdF] text-[#c89036]"><UserRound className="h-4 w-4" /></span><div><h2 className="text-[15px] font-black">Profile details</h2><p className="mt-1 text-[11px] text-[#817c72]">This is how you appear around the marketplace.</p></div></div><FieldLabel>Full name</FieldLabel><input type="text" value={name} onChange={(event) => setName(event.target.value)} className="w-full rounded-xl border border-[#e5e1d8] bg-[#fcfaf5] px-4 py-3 text-[13px] outline-none transition focus:border-[#c89036] focus:bg-white" /><div className="mt-5"><FieldLabel>Email address</FieldLabel><div className="flex items-center gap-3 rounded-xl border border-[#e5e1d8] bg-[#f7f5f0] px-4 py-3"><Mail className="h-4 w-4 text-[#9a958c]" /><p className="text-[13px] text-[#817c72]">{currentUser.email || 'No email available'}</p><span className="ml-auto rounded-full bg-[#eef8ef] px-2 py-1 text-[9px] font-black text-[#30924a]">Verified</span></div><p className="mt-2 text-[11px] text-[#aaa59c]">Your verified university email cannot be changed here.</p></div><button type="submit" className="mt-7 rounded-full bg-[#10143f] px-5 py-3.5 text-[11px] font-black uppercase tracking-[0.12em] text-[#d7a23a] transition hover:bg-[#c89036] hover:text-[#10143f]">{saved ? 'Saved ✓' : 'Save changes'}</button></form>
+      <div className="overflow-hidden rounded-[26px] border border-[#e5e1d8] bg-white"><button type="button" onClick={() => setPasswordOpen((open) => !open)} className="flex w-full items-center gap-3 px-5 py-5 text-left sm:px-7"><span className="grid h-10 w-10 place-items-center rounded-xl bg-[#f7efdF] text-[#c89036]"><Lock className="h-4 w-4" /></span><span className="flex-1"><span className="block text-[13px] font-black">Change password</span><span className="mt-1 block text-[11px] text-[#817c72]">Use at least 8 characters for a stronger password.</span></span><ChevronDown className={'h-4 w-4 text-[#c89036] transition ' + (passwordOpen ? 'rotate-180' : '')} /></button>{passwordOpen && <div className="border-t border-[#eeeae3] px-5 pb-6 pt-5 sm:px-7">{passwordSaved ? <div className="flex items-center gap-2 rounded-xl bg-[#eef8ef] px-4 py-3 text-[12px] font-bold text-[#30924a]"><CheckCircle2 className="h-4 w-4" /> Password updated successfully.</div> : <form onSubmit={handlePasswordSubmit} className="space-y-4"><div><FieldLabel>Current password</FieldLabel><div className="relative"><input type={showCurrent ? 'text' : 'password'} value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} placeholder="••••••••" className="w-full rounded-xl border border-[#e5e1d8] bg-[#fcfaf5] px-4 py-3 pr-10 text-[13px] outline-none focus:border-[#c89036]" /><button type="button" onClick={() => setShowCurrent((show) => !show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#817c72]">{showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div></div><div><FieldLabel>New password</FieldLabel><div className="relative"><input type={showNew ? 'text' : 'password'} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} placeholder="At least 8 characters" className="w-full rounded-xl border border-[#e5e1d8] bg-[#fcfaf5] px-4 py-3 pr-10 text-[13px] outline-none focus:border-[#c89036]" /><button type="button" onClick={() => setShowNew((show) => !show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#817c72]">{showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div></div><div><FieldLabel>Confirm new password</FieldLabel><input type={showNew ? 'text' : 'password'} value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="Re-enter new password" className={'w-full rounded-xl border bg-[#fcfaf5] px-4 py-3 text-[13px] outline-none focus:border-[#c89036] ' + (confirmPassword && !passwordsMatch ? 'border-[#e36b52]' : 'border-[#e5e1d8]')} /></div>{passwordError && <p className="text-[12px] text-[#c34f3b]">{passwordError}</p>}<button type="submit" disabled={!canSubmitPassword} className={'w-full rounded-full py-3.5 text-[11px] font-black uppercase tracking-[0.12em] ' + (canSubmitPassword ? 'bg-[#10143f] text-[#d7a23a]' : 'cursor-not-allowed bg-[#e5e1d8] text-[#aaa59c]')}>Update password</button></form>}</div>}</div>
+      <div className="flex items-center gap-3 rounded-[22px] border border-[#e5e1d8] bg-white px-5 py-4 sm:px-7"><span className="grid h-10 w-10 place-items-center rounded-xl bg-[#f7efdF] text-[#c89036]"><Bell className="h-4 w-4" /></span><span className="flex-1"><span className="block text-[13px] font-black">Push notifications</span><span className="mt-1 block text-[11px] text-[#817c72]">Get updates about messages and listings.</span></span><button type="button" onClick={() => setNotifications((value) => !value)} className={'relative h-6 w-11 rounded-full transition ' + (notifications ? 'bg-[#10143f]' : 'bg-[#d9d2c6]')}><span className={'absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ' + (notifications ? 'left-[22px]' : 'left-0.5')} /></button></div></div><aside className="hidden h-fit rounded-[26px] bg-[#10143f] p-6 text-white lg:block"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#d7a23a]">Privacy & trust</p><h2 className="mt-4 text-[23px] font-black leading-tight tracking-[-0.04em]">Your account stays yours.</h2><p className="mt-4 text-[12px] leading-6 text-white/65">We use your verified campus identity to make buying and selling safer for the community.</p><div className="mt-7 flex gap-2 border-t border-white/15 pt-4"><ShieldCheck className="mt-0.5 h-4 w-4 text-[#d7a23a]" /><p className="text-[11px] leading-5 text-white/55">Need to update anything else? Contact support.</p></div></aside></section>
+  </div></div>;
 }
