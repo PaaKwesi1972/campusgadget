@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import PageLoader from '../components/PageLoader';
+import DashboardSidebar from '../components/DashboardSidebar';
 
 function fallbackImage(id) {
   return 'https://picsum.photos/seed/my-campus-listing-' + id + '/700/700';
@@ -66,7 +67,8 @@ export default function MyListings() {
   if (loading) return <PageLoader />;
 
   return (
-    <div className="min-h-screen bg-[#fbfaf7] font-body text-[#10143f]">
+    <div className="min-h-screen bg-[#fbfaf7] font-body text-[#10143f] lg:pl-64">
+      <DashboardSidebar active="listings" />
       <header className="border-b border-[#e5e1d8] bg-[#fbfaf7]">
         <div className="mx-auto flex h-[72px] max-w-[1180px] items-center justify-between px-5 sm:px-8 lg:px-12">
           <button onClick={() => navigate('/profile')} className="flex items-center gap-3"><ArrowLeft className="h-5 w-5" /><span className="hidden text-[12px] font-semibold sm:inline">Back to profile</span></button>

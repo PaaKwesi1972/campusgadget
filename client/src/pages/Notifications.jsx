@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MessageCircle, Star } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import PageLoader from '../components/PageLoader';
+import DashboardSidebar, { DashboardFooter } from '../components/DashboardSidebar';
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -53,7 +54,8 @@ export default function Notifications() {
   if (loading) return <PageLoader />;
 
   return (
-    <div className="min-h-screen bg-white font-body">
+    <div className="min-h-screen bg-[#fbfaf7] font-body text-[#10143f] lg:pl-64">
+      <DashboardSidebar active="notifications" />
       <div className="bg-navy px-6 pt-8 pb-5 flex items-center gap-4">
         <button onClick={() => navigate(-1)} className="text-white/80 hover:text-white transition">
           <ArrowLeft className="w-5 h-5" strokeWidth={2.2} />
@@ -94,6 +96,7 @@ export default function Notifications() {
             </button>
           );
         })}
+        <DashboardFooter />
       </div>
     </div>
   );

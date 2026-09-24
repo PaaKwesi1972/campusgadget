@@ -7,6 +7,7 @@ import {
 import { apiRequest } from '../lib/api';
 import { useUnreadCount } from '../hooks/useUnreadCount';
 import PageLoader from '../components/PageLoader';
+import DashboardSidebar, { DashboardFooter } from '../components/DashboardSidebar';
 
 function initials(name) {
   return (name || '?').split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase();
@@ -73,7 +74,8 @@ export default function Messages() {
   if (loading) return <PageLoader />;
 
   return (
-    <div className="min-h-screen bg-[#fbfaf7] pb-24 font-body text-[#10143f] lg:pb-10">
+    <div className="min-h-screen bg-[#fbfaf7] pb-24 font-body text-[#10143f] lg:pb-10 lg:pl-64">
+      <DashboardSidebar active="messages" />
       <header className="border-b border-[#e5e1d8] bg-[#fbfaf7]">
         <div className="mx-auto flex h-[72px] max-w-[1080px] items-center justify-between px-5 sm:px-8 lg:px-12">
           <button onClick={() => navigate('/home')} className="flex items-center gap-3"><ArrowLeft className="h-5 w-5" /><span className="hidden text-[12px] font-semibold sm:inline">Back to browse</span></button>
@@ -95,10 +97,9 @@ export default function Messages() {
           return <button key={conversation.id} onClick={() => navigate(`/messages/thread/${conversation.id}`)} className="group flex w-full items-center gap-4 border-b border-[#eeeae2] px-4 py-5 text-left transition last:border-b-0 hover:bg-[#fdf9f1] sm:px-6"><div className={'relative grid h-12 w-12 shrink-0 place-items-center rounded-full text-[13px] font-black ' + (needsReply ? 'bg-[#f1e8d2] text-[#a77b2e]' : 'bg-[#ece9e2] text-[#77736c]')}>{initials(conversation.other_user_name)}{needsReply && <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-white bg-[#c89036]" />}</div><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-3"><p className={'truncate text-[14px] ' + (needsReply ? 'font-black' : 'font-bold')}>{conversation.other_user_name}</p><span className="shrink-0 text-[10px] text-[#aaa59c]">{relativeTime(conversation.last_message_at || conversation.updated_at)}</span></div><p className="mt-1 truncate text-[11px] font-semibold text-[#c89036]">{conversation.listing_title}</p><p className={'mt-1 truncate text-[13px] ' + (needsReply ? 'font-semibold text-[#10143f]' : 'text-[#817c72]')}>{conversation.last_message_text || 'Open conversation'}</p></div><ArrowUpRight className="h-4 w-4 shrink-0 text-[#c9c3b8] transition group-hover:text-[#c89036]" /></button>;
         })}</div>}
 
-        <footer className="mt-12 border-t border-[#e5e1d8] pt-5 text-[11px] text-[#aaa59c]">© {new Date().getFullYear()} CampusGadget · Messages for verified students.</footer>
+        <DashboardFooter />
       </main>
-
-      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-[#25284b] bg-[#10143f] px-3 pb-[calc(0.6rem+env(safe-area-inset-bottom))] pt-2 lg:hidden"><div className="mx-auto flex max-w-md items-center justify-around">{navItems.map(({ key, label, icon: Icon, path }) => <button key={key} onClick={() => navigate(path)} className={'relative flex flex-col items-center gap-1 px-3 py-1 ' + (key === 'messages' ? 'text-[#d7a23a]' : 'text-white/50')}><div className="relative"><Icon className="h-[18px] w-[18px]" />{key === 'messages' && unreadCount > 0 && <span className="absolute -right-2 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-[#e36b52] px-1 text-[9px] font-black text-white">{unreadCount}</span>}</div><span className="text-[9px] font-bold">{label}</span></button>)}</div></nav>
     </div>
   );
 }
+

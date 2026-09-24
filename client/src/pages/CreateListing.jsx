@@ -5,6 +5,7 @@ import {
   MapPin, ShieldCheck, Trash2, UploadCloud, X,
 } from 'lucide-react';
 import { apiRequest, API_URL } from '../lib/api';
+import DashboardSidebar from '../components/DashboardSidebar';
 
 const CATEGORIES = ['Phones', 'Laptops', 'Tablets', 'Accessories', 'Audio'];
 const CONDITIONS = ['New', 'Like New', 'Good', 'Fair'];
@@ -115,7 +116,8 @@ export default function CreateListing() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfaf7] pb-24 font-body text-[#10143f] lg:pb-10">
+    <div className="min-h-screen bg-[#fbfaf7] pb-24 font-body text-[#10143f] lg:pb-10 lg:pl-64">
+      <DashboardSidebar active="sell" />
       {isBusy && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#fbfaf7]/95 px-6 text-center backdrop-blur-sm">
           <div className="mb-5 h-1 w-24 overflow-hidden rounded-full bg-[#e5e1d8]"><div className="h-full w-1/2 animate-pulse bg-[#c89036]" /></div>

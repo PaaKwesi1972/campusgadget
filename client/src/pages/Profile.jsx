@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useUnreadCount } from '../hooks/useUnreadCount';
+import DashboardSidebar, { DashboardFooter } from '../components/DashboardSidebar';
 
 const MENU_ITEMS = [
   { icon: Package, label: 'My Listings', path: '/my-listings' },
@@ -54,7 +55,8 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-body pb-24">
+    <div className="min-h-screen bg-[#fbfaf7] font-body pb-24 lg:pb-10 lg:pl-64">
+      <DashboardSidebar active="profile" />
       <div className="bg-navy px-6 pt-12 pb-8 flex flex-col items-center text-center">
         <div className="w-20 h-20 rounded-full bg-[#F9EFE0] border-2 border-gold flex items-center justify-center font-bold text-gold-deep text-[24px] mb-3">
           {initials || '?'}
@@ -109,37 +111,9 @@ export default function Profile() {
           <ChevronRight className="w-4 h-4 text-mute" strokeWidth={2} />
         </button>
 
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3.5 py-4 border-b border-line text-left"
-        >
-          <LogOut className="w-[18px] h-[18px] text-red-600 shrink-0" strokeWidth={2} />
-          <span className="flex-1 text-red-600 font-semibold text-[14.5px]">Log Out</span>
-          <ChevronRight className="w-4 h-4 text-mute" strokeWidth={2} />
-        </button>
+        <DashboardFooter />
       </div>
 
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-navy px-3 pt-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))]">
-        <div className="max-w-md mx-auto flex items-center justify-around">
-          {navItems.map(function (item) {
-            const Icon = item.icon;
-            const active = item.key === 'profile';
-            return (
-              <button key={item.key} onClick={function () { navigate(item.path); }} className="relative flex flex-col items-center gap-1 px-3 py-1">
-                <div className="relative">
-                  <Icon className={'w-[18px] h-[18px] ' + (active ? 'text-gold' : 'text-white/50')} strokeWidth={2.2} />
-                  {item.key === 'messages' && unreadCount > 0 && (
-                    <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
-                      {unreadCount}
-                    </span>
-                  )}
-                </div>
-                <span className={'text-[9.5px] font-semibold ' + (active ? 'text-gold' : 'text-white/50')}>{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
     </div>
   );
 }

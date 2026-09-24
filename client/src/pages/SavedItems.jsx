@@ -4,6 +4,7 @@ import { Heart } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import PageLoader from '../components/PageLoader';
 import PageHeader from '../components/PageHeader';
+import DashboardSidebar, { DashboardFooter } from '../components/DashboardSidebar';
 
 export default function SavedItems() {
   const navigate = useNavigate();
@@ -35,7 +36,8 @@ export default function SavedItems() {
   if (loading) return <PageLoader />;
 
   return (
-    <div className="min-h-screen bg-white font-body">
+    <div className="min-h-screen bg-[#fbfaf7] font-body text-[#10143f] lg:pl-64">
+      <DashboardSidebar active="saved" />
       <PageHeader onBack={function () { navigate('/profile'); }} />
 
       <div className="max-w-lg mx-auto px-6 pt-6 pb-10">
@@ -75,6 +77,7 @@ export default function SavedItems() {
             })}
           </div>
         )}
+        <DashboardFooter />
       </div>
     </div>
   );
