@@ -1,120 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, ArrowUpRight, Eye, EyeOff, Store, ShieldCheck } from 'lucide-react';
 import { apiRequest } from '../../lib/api';
-import PageHeader from '../../components/PageHeader';
+import MonoLogo from '../../components/MonoLogo';
 
 export default function VendorSignUp() {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const data = await apiRequest('/api/auth/signup', {
-        method: 'POST',
-        body: JSON.stringify({ fullName, email, password, userType: 'vendor' }),
-      });
-
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      navigate('/vendor-registration');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-white flex flex-col font-body">
-      <PageHeader onBack={() => navigate('/welcome')} />
-
-      <div className="flex-1 px-6 pt-6 pb-8 max-w-sm mx-auto w-full">
-        <h1 className="font-display text-[1.9rem] font-semibold text-navy leading-tight mb-3">
-          Register your business
-        </h1>
-        <p className="text-slate text-[14.5px] mb-9 leading-relaxed">
-          For off-campus vendors. Create an account first, then submit your business details for admin review.
-        </p>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-6">
-            <p className="text-red-600 text-[13px] font-medium">{error}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-              Business Contact Name
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="e.g. Kwame Owusu"
-              required
-              className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-              Business Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@yourbusiness.com"
-              required
-              className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              minLength={6}
-              className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-navy text-gold font-bold tracking-[0.1em] text-sm py-4 rounded-full active:scale-[0.98] hover:bg-navy-light transition mt-4 disabled:opacity-50"
-          >
-            {loading ? 'CREATING ACCOUNT...' : 'CONTINUE TO BUSINESS DETAILS'}
-          </button>
-
-          <p className="text-center text-mute text-[13.5px]">
-            Already have an account?{' '}
-            <button
-              type="button"
-              onClick={() => navigate('/login')}
-              className="text-navy font-semibold underline decoration-gold decoration-2 underline-offset-2"
-            >
-              Log in
-            </button>
-          </p>
-        </form>
-      </div>
-    </div>
-  );
+  async function handleSubmit(event) { event.preventDefault(); setError(''); setLoading(true); try { const data = await apiRequest('/api/auth/signup', { method: 'POST', body: JSON.stringify({ fullName, email, password, userType: 'vendor' }) }); localStorage.setItem('token', data.token); localStorage.setItem('user', JSON.stringify(data.user)); navigate('/vendor-registration'); } catch (err) { setError(err.message); } finally { setLoading(false); } }
+  return <div className="min-h-screen bg-[#fbfaf7] font-body text-[#10143f]"><div className="mx-auto flex min-h-screen max-w-[1440px] flex-col lg:flex-row"><section className="relative hidden min-h-screen w-[42%] overflow-hidden bg-[#10143f] px-10 py-10 text-white lg:flex lg:flex-col xl:px-16"><div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-white"><MonoLogo className="h-6 w-6" color="#10143f" /></div><p className="text-[12px] font-black uppercase tracking-[0.18em]">Campus<span className="text-[#d7a23a]">Gadget</span></p></div><div className="my-auto max-w-[430px]"><p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#d7a23a]">Business onboarding</p><h1 className="mt-6 text-[4.3rem] font-black leading-[0.94] tracking-[-0.07em]">Bring your<br /><span className="text-[#d7a23a]">store to campus.</span></h1><p className="mt-7 text-[14px] leading-7 text-white/65">Reach students who are already looking for reliable gadgets, accessories, and tech support.</p><div className="mt-10 flex gap-3"><Store className="h-5 w-5 text-[#d7a23a]" /><p className="text-[11px] font-bold text-white/70">Applications are reviewed before listings go live.</p></div></div><p className="border-t border-white/15 pt-5 text-[11px] text-white/50">Professional sellers. Better access to campus.</p></section><main className="flex min-h-screen flex-1 flex-col px-5 py-6 sm:px-10 lg:px-16 xl:px-24"><button onClick={() => navigate('/welcome')} className="flex items-center gap-2 self-start text-[11px] font-black uppercase tracking-[0.12em] text-[#817c72]"><span className="grid h-9 w-9 place-items-center rounded-full border border-[#e5e1d8] bg-white"><ArrowLeft className="h-4 w-4" /></span> Back</button><div className="mx-auto flex w-full max-w-[470px] flex-1 flex-col justify-center py-10"><div className="mb-7"><div className="mb-4 flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f7efdF] text-[#c89036]"><Store className="h-4 w-4" /></span><span className="text-[10px] font-black uppercase tracking-[0.18em] text-[#c89036]">Vendor account</span></div><h2 className="text-[2.7rem] font-black leading-[0.98] tracking-[-0.06em]">Register your<br />business.</h2><p className="mt-5 text-[13px] leading-6 text-[#77736c]">Create your vendor account first. You’ll submit your business details for review next.</p></div>{error && <div className="mb-5 rounded-2xl border border-[#f2c9bf] bg-[#fff5f2] px-4 py-3 text-[12px] text-[#c34f3b]">{error}</div>}<form onSubmit={handleSubmit} className="space-y-4"><div><label className="mb-2 block text-[10px] font-black uppercase tracking-[0.18em] text-[#aaa59c]">Business contact name</label><input value={fullName} onChange={(event) => setFullName(event.target.value)} placeholder="e.g. Kwame Owusu" required className="w-full rounded-2xl border border-[#e5e1d8] bg-white px-4 py-3.5 text-[13px] outline-none focus:border-[#c89036] focus:ring-4 focus:ring-[#f7efdF]" /></div><div><label className="mb-2 block text-[10px] font-black uppercase tracking-[0.18em] text-[#aaa59c]">Business email</label><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@yourbusiness.com" required className="w-full rounded-2xl border border-[#e5e1d8] bg-white px-4 py-3.5 text-[13px] outline-none focus:border-[#c89036] focus:ring-4 focus:ring-[#f7efdF]" /></div><div><label className="mb-2 block text-[10px] font-black uppercase tracking-[0.18em] text-[#aaa59c]">Password</label><div className="relative"><input type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="At least 6 characters" minLength={6} required className="w-full rounded-2xl border border-[#e5e1d8] bg-white px-4 py-3.5 pr-12 text-[13px] outline-none focus:border-[#c89036] focus:ring-4 focus:ring-[#f7efdF]" /><button type="button" onClick={() => setShowPassword((show) => !show)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#817c72]">{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div></div><button type="submit" disabled={loading} className="group mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#10143f] py-4 text-[11px] font-black uppercase tracking-[0.13em] text-[#d7a23a] hover:bg-[#c89036] hover:text-[#10143f] disabled:opacity-50">{loading ? 'Creating account…' : 'Continue to business details'}<ArrowUpRight className="h-4 w-4" /></button></form><div className="mt-6 flex gap-2 text-[11px] leading-5 text-[#817c72]"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#c89036]" /> Your application will be reviewed before your store appears to students.</div><p className="mt-6 text-center text-[12px] text-[#aaa59c]">Already have an account? <button onClick={() => navigate('/login')} className="font-black text-[#10143f] underline decoration-[#c89036] underline-offset-4">Log in</button></p></div></main></div></div>;
 }

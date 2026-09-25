@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, ArrowUpRight, MailCheck, ShieldCheck } from 'lucide-react';
 import { apiRequest } from '../../lib/api';
-import PageHeader from '../../components/PageHeader';
+import MonoLogo from '../../components/MonoLogo';
 
 export default function OtpVerification() {
   const navigate = useNavigate();
@@ -11,157 +12,15 @@ export default function OtpVerification() {
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
   const inputRefs = useRef([]);
-
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-
-  useEffect(() => {
-    if (secondsLeft <= 0) return;
-    const interval = setInterval(() => {
-      setSecondsLeft((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [secondsLeft]);
-
+  useEffect(() => { if (secondsLeft <= 0) return; const interval = setInterval(() => setSecondsLeft((value) => value - 1), 1000); return () => clearInterval(interval); }, [secondsLeft]);
+  const expired = secondsLeft <= 0;
   const minutes = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
   const seconds = String(secondsLeft % 60).padStart(2, '0');
-  const expired = secondsLeft <= 0;
-
-  const handleChange = (index, value) => {
-    if (!/^\d*$/.test(value)) return;
-    setError('');
-    const next = [...digits];
-    next[index] = value.slice(-1);
-    setDigits(next);
-    if (value && index < 5) inputRefs.current[index + 1]?.focus();
-  };
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !digits[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleResend = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-    setResending(true);
-    setError('');
-    try {
-      await apiRequest('/api/auth/resend-otp', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setSecondsLeft(300);
-      setDigits(['', '', '', '', '', '']);
-      inputRefs.current[0]?.focus();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setResending(false);
-    }
-  };
-
-  const handleVerify = async () => {
-    const code = digits.join('');
-    if (code.length !== 6 || expired) return;
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-
-    setError('');
-    setVerifying(true);
-    try {
-      await apiRequest('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ code }),
-      });
-      navigate('/home');
-    } catch (err) {
-      setError(err.message);
-      setDigits(['', '', '', '', '', '']);
-      inputRefs.current[0]?.focus();
-    } finally {
-      setVerifying(false);
-    }
-  };
-
-  const isComplete = digits.every((d) => d !== '');
-
-  return (
-    <div className="min-h-screen bg-white flex flex-col font-body">
-      <PageHeader onBack={() => navigate('/signup')} />
-
-      <div className="flex-1 flex flex-col px-6 pt-6 pb-8 max-w-sm mx-auto w-full">
-        <h1 className="font-display text-[1.9rem] font-semibold text-navy leading-tight mb-3">
-          Check your inbox
-        </h1>
-        <p className="text-slate text-[14.5px] mb-10 leading-relaxed">
-          Enter the 6-digit code we sent to{' '}
-          <span className="text-navy font-semibold">{currentUser.email || 'your email'}</span>
-        </p>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-5">
-            <p className="text-red-600 text-[13px] font-medium">{error}</p>
-          </div>
-        )}
-
-        <div className="flex gap-2.5 justify-between mb-5">
-          {digits.map((digit, i) => (
-            <input
-              key={i}
-              ref={(el) => (inputRefs.current[i] = el)}
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(i, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(i, e)}
-              disabled={expired || verifying}
-              className={`w-full aspect-square text-center text-xl font-bold rounded-xl border-2 outline-none transition-colors text-navy disabled:opacity-40 ${
-                digit ? 'border-gold-deep' : 'border-line focus:border-gold-deep'
-              }`}
-            />
-          ))}
-        </div>
-
-        <p className={`text-[13px] mb-8 ${expired ? 'text-red-600 font-semibold' : 'text-slate'}`}>
-          {expired ? 'Code expired' : `Code expires in ${minutes}:${seconds}`}
-        </p>
-
-        <div className="flex-1" />
-
-        <button
-          onClick={handleVerify}
-          disabled={!isComplete || expired || verifying}
-          className={`w-full font-bold tracking-[0.1em] text-sm py-4 rounded-full transition ${
-            isComplete && !expired && !verifying
-              ? 'bg-navy text-gold active:scale-[0.98] hover:bg-navy-light'
-              : 'bg-line text-mute cursor-not-allowed'
-          }`}
-        >
-          {verifying ? 'VERIFYING...' : 'VERIFY & CONTINUE'}
-        </button>
-
-        <p className="text-center text-mute text-[13.5px] mt-5">
-          Didn't get a code?{' '}
-          <button
-            type="button"
-            onClick={handleResend}
-            disabled={resending}
-            className="text-navy font-semibold underline decoration-gold decoration-2 underline-offset-2 disabled:opacity-50"
-          >
-            {resending ? 'Sending...' : 'Resend'}
-          </button>
-        </p>
-      </div>
-    </div>
-  );
+  const complete = digits.every(Boolean);
+  function handleChange(index, value) { if (!/^\d*$/.test(value)) return; setError(''); const next = [...digits]; next[index] = value.slice(-1); setDigits(next); if (value && index < 5) inputRefs.current[index + 1]?.focus(); }
+  function handleKeyDown(index, event) { if (event.key === 'Backspace' && !digits[index] && index > 0) inputRefs.current[index - 1]?.focus(); }
+  async function resend() { const token = localStorage.getItem('token'); if (!token) { navigate('/login'); return; } setResending(true); setError(''); try { await apiRequest('/api/auth/resend-otp', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }); setSecondsLeft(300); setDigits(['', '', '', '', '', '']); inputRefs.current[0]?.focus(); } catch (err) { setError(err.message); } finally { setResending(false); } }
+  async function verify() { if (!complete || expired) return; const token = localStorage.getItem('token'); if (!token) { navigate('/login'); return; } setVerifying(true); setError(''); try { await apiRequest('/api/auth/verify-otp', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ code: digits.join('') }) }); navigate('/home'); } catch (err) { setError(err.message); setDigits(['', '', '', '', '', '']); inputRefs.current[0]?.focus(); } finally { setVerifying(false); } }
+  return <div className="min-h-screen bg-[#fbfaf7] font-body text-[#10143f]"><div className="mx-auto flex min-h-screen max-w-[1440px] flex-col lg:flex-row"><section className="relative hidden min-h-screen w-[42%] overflow-hidden bg-[#10143f] px-10 py-10 text-white lg:flex lg:flex-col xl:px-16"><div className="relative flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-white"><MonoLogo className="h-6 w-6" color="#10143f" /></div><p className="text-[12px] font-black uppercase tracking-[0.18em]">Campus<span className="text-[#d7a23a]">Gadget</span></p></div><div className="my-auto max-w-[410px]"><p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#d7a23a]">Step 02 · Verify your identity</p><h1 className="mt-6 text-[4.3rem] font-black leading-[0.94] tracking-[-0.07em]">Almost<br /><span className="text-[#d7a23a]">there.</span></h1><p className="mt-7 text-[14px] leading-7 text-white/65">One quick code confirms you belong to the University of Ghana community.</p><div className="mt-10 flex items-center gap-3"><ShieldCheck className="h-5 w-5 text-[#d7a23a]" /><p className="text-[11px] font-bold text-white/70">Your account stays protected.</p></div></div><p className="border-t border-white/15 pt-5 text-[11px] text-white/50">Verified students. Better handoffs.</p></section><main className="flex min-h-screen flex-1 flex-col px-5 py-6 sm:px-10 lg:px-16 xl:px-24"><button onClick={() => navigate('/signup')} className="flex items-center gap-2 self-start text-[11px] font-black uppercase tracking-[0.12em] text-[#817c72]"><span className="grid h-9 w-9 place-items-center rounded-full border border-[#e5e1d8] bg-white"><ArrowLeft className="h-4 w-4" /></span> Back</button><div className="mx-auto flex w-full max-w-[480px] flex-1 flex-col justify-center py-10"><div className="mb-8"><div className="mb-4 flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f7efdF] text-[#c89036]"><MailCheck className="h-4 w-4" /></span><span className="text-[10px] font-black uppercase tracking-[0.18em] text-[#c89036]">Email verification</span></div><h2 className="text-[2.6rem] font-black leading-[0.98] tracking-[-0.06em]">Check your<br />inbox.</h2><p className="mt-5 text-[13px] leading-6 text-[#77736c]">Enter the 6-digit code we sent to <strong className="text-[#10143f]">{currentUser.email || 'your email'}</strong>.</p></div><div className="mb-6 flex items-center gap-2"><span className="h-1.5 w-16 rounded-full bg-[#d7a23a]" /><span className="h-1.5 w-16 rounded-full bg-[#d7a23a]" /><span className="text-[10px] font-black uppercase tracking-[0.12em] text-[#aaa59c]">2 of 2</span></div>{error && <div className="mb-5 rounded-2xl border border-[#f2c9bf] bg-[#fff5f2] px-4 py-3 text-[12px] text-[#c34f3b]">{error}</div>}<div className="grid grid-cols-6 gap-2 sm:gap-3">{digits.map((digit, index) => <input key={index} ref={(element) => { inputRefs.current[index] = element; }} type="text" inputMode="numeric" maxLength={1} value={digit} onChange={(event) => handleChange(index, event.target.value)} onKeyDown={(event) => handleKeyDown(index, event)} disabled={expired || verifying} className={'aspect-square w-full rounded-2xl border-2 bg-white text-center text-[22px] font-black outline-none transition ' + (digit ? 'border-[#c89036]' : 'border-[#e5e1d8] focus:border-[#c89036]')} />)}</div><p className={'mt-4 text-[12px] font-bold ' + (expired ? 'text-[#c34f3b]' : 'text-[#817c72]')}>{expired ? 'This code has expired.' : `Code expires in ${minutes}:${seconds}`}</p><button onClick={verify} disabled={!complete || expired || verifying} className={'group mt-8 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[11px] font-black uppercase tracking-[0.13em] transition ' + (complete && !expired && !verifying ? 'bg-[#10143f] text-[#d7a23a] hover:bg-[#c89036] hover:text-[#10143f]' : 'cursor-not-allowed bg-[#e5e1d8] text-[#aaa59c]')}>{verifying ? 'Verifying…' : 'Verify & continue'}<ArrowUpRight className="h-4 w-4" /></button><p className="mt-6 text-center text-[12px] text-[#aaa59c]">Didn’t get a code? <button onClick={resend} disabled={resending} className="font-black text-[#10143f] underline decoration-[#c89036] decoration-2 underline-offset-4">{resending ? 'Sending…' : 'Resend code'}</button></p></div></main></div></div>;
 }

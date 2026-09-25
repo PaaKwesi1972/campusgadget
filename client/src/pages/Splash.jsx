@@ -1,34 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ShieldCheck, Sparkles } from 'lucide-react';
 import MonoLogo from '../components/MonoLogo';
-
-export default function Splash() {
-  const navigate = useNavigate();
-  const [showText, setShowText] = useState(false);
-
-  useEffect(() => {
-    const textTimer = setTimeout(() => setShowText(true), 400);
-    const navTimer = setTimeout(() => navigate('/welcome', { replace: true }), 2200);
-    return () => {
-      clearTimeout(textTimer);
-      clearTimeout(navTimer);
-    };
-  }, [navigate]);
-
-  return (
-    <div className="min-h-screen bg-paper flex flex-col items-center justify-center font-body">
-      <div className="flex flex-col items-center gap-6">
-        <MonoLogo className="w-32 h-32 sm:w-40 sm:h-40" />
-        <p
-          className={`text-[26px] sm:text-[30px] font-bold transition-opacity duration-500 ${
-            showText ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <span className="text-navy">Campus</span>
-          <span className="text-gold-deep">Gadget</span>
-        </p>
-      </div>
-    </div>
-  );
-}
-
+export default function Splash() { const navigate = useNavigate(); const [showText, setShowText] = useState(false); useEffect(() => { const textTimer = setTimeout(() => setShowText(true), 350); const navTimer = setTimeout(() => navigate('/welcome', { replace: true }), 2200); return () => { clearTimeout(textTimer); clearTimeout(navTimer); }; }, [navigate]); return <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#10143f] font-body text-white"><div className="absolute -right-24 -top-20 h-80 w-80 rounded-full border-[42px] border-white/5" /><div className="absolute -bottom-28 -left-20 h-72 w-72 rounded-full border-[34px] border-[#d7a23a]/10" /><div className="relative flex flex-col items-center text-center"><div className="grid h-28 w-28 place-items-center rounded-[30px] bg-white shadow-[0_18px_45px_rgba(0,0,0,0.18)] sm:h-36 sm:w-36"><MonoLogo className="h-20 w-20 sm:h-24 sm:w-24" color="#10143f" /></div><p className={'mt-7 text-[25px] font-black uppercase tracking-[0.16em] transition-all duration-700 sm:text-[30px] ' + (showText ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0')}><span>Campus</span><span className="text-[#d7a23a]">Gadget</span></p><p className={'mt-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#d7a23a] transition-opacity delay-300 duration-700 ' + (showText ? 'opacity-100' : 'opacity-0')}><Sparkles className="h-3.5 w-3.5" /> Useful tech. Close to campus.</p><div className={'mt-10 flex items-center gap-2 text-[10px] text-white/45 transition-opacity delay-500 duration-700 ' + (showText ? 'opacity-100' : 'opacity-0')}><ShieldCheck className="h-3.5 w-3.5 text-[#d7a23a]" /> Verified University of Ghana marketplace</div></div></div>; }

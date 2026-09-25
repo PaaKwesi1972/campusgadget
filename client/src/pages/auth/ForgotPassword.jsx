@@ -1,116 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, CheckCircle2 } from 'lucide-react';
-import PageHeader from '../../components/PageHeader';
+import { ArrowLeft, ArrowUpRight, CheckCircle2, Mail, ShieldCheck } from 'lucide-react';
+import MonoLogo from '../../components/MonoLogo';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
-
-  const isValidEmail = /^[^\s@]+@st\.ug\.edu\.gh$/.test(email);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isValidEmail) setSubmitted(true);
-  };
-
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-white flex flex-col font-body">
-        <PageHeader onBack={() => navigate('/login')} />
-
-        <div className="flex-1 flex flex-col items-center justify-center px-6 max-w-sm mx-auto w-full text-center">
-          <div className="w-16 h-16 rounded-full bg-[#F9EFE0] flex items-center justify-center mb-6">
-            <CheckCircle2 className="w-8 h-8 text-gold-deep" strokeWidth={2} />
-          </div>
-          <h1 className="font-display text-[1.7rem] font-semibold text-navy leading-tight mb-3">
-            Check your email
-          </h1>
-          <p className="text-slate text-[14.5px] leading-relaxed mb-8">
-            We sent a reset link to <span className="text-navy font-semibold">{email}</span>. It'll expire in 15 minutes.
-          </p>
-
-          <button
-            onClick={() => navigate('/login')}
-            className="w-full bg-navy text-gold font-bold tracking-[0.1em] text-sm py-4 rounded-full active:scale-[0.98] hover:bg-navy-light transition"
-          >
-            BACK TO LOG IN
-          </button>
-
-          <button
-            onClick={() => setSubmitted(false)}
-            className="text-mute text-[13.5px] mt-5 underline decoration-line decoration-2 underline-offset-2"
-          >
-            Wrong email? Try again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-white flex flex-col font-body">
-      <PageHeader onBack={() => navigate('/login')} />
-
-      <div className="flex-1 flex flex-col px-6 pt-6 pb-8 max-w-sm mx-auto w-full">
-        <h1 className="font-display text-[1.9rem] font-semibold text-navy leading-tight mb-3">
-          Reset your password
-        </h1>
-        <p className="text-slate text-[14.5px] mb-9 leading-relaxed">
-          Enter the university email on your account and we'll send you a link to reset your password.
-        </p>
-
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1">
-          <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-            University Email
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@st.ug.edu.gh"
-            className={`w-full bg-transparent border-b-2 outline-none py-2.5 text-navy placeholder-mute transition-colors ${
-              email && !isValidEmail ? 'border-red-400' : 'border-line focus:border-gold-deep'
-            }`}
-          />
-          {email && !isValidEmail && (
-            <p className="text-red-500 text-[12px] mt-1.5">Use your st.ug.edu.gh email address</p>
-          )}
-
-          <div className="flex-1" />
-
-          <button
-            type="submit"
-            disabled={!isValidEmail}
-            className={`w-full font-bold tracking-[0.1em] text-sm py-4 rounded-full transition ${
-              isValidEmail
-                ? 'bg-navy text-gold active:scale-[0.98] hover:bg-navy-light'
-                : 'bg-line text-mute cursor-not-allowed'
-            }`}
-          >
-            SEND RESET LINK
-          </button>
-
-          <div className="flex items-start gap-2.5 bg-[#F9EFE0] rounded-2xl px-4 py-3.5 mt-5">
-            <Mail className="w-4 h-4 mt-0.5 shrink-0 text-gold-deep" strokeWidth={2} />
-            <p className="text-gold-deep text-[12.5px] leading-relaxed">
-              The reset link only works if this email is linked to a verified student account.
-            </p>
-          </div>
-
-          <p className="text-center text-mute text-[13.5px] mt-5">
-            Remembered it?{' '}
-            <button
-              type="button"
-              onClick={() => navigate('/login')}
-              className="text-navy font-semibold underline decoration-gold decoration-2 underline-offset-2"
-            >
-              Log in
-            </button>
-          </p>
-        </form>
-      </div>
-    </div>
-  );
+  const valid = /^[^\s@]+@st\.ug\.edu\.gh$/.test(email);
+  return <div className="min-h-screen bg-[#fbfaf7] font-body text-[#10143f]"><div className="mx-auto flex min-h-screen max-w-[1440px] flex-col lg:flex-row"><section className="relative hidden min-h-screen w-[42%] overflow-hidden bg-[#10143f] px-10 py-10 text-white lg:flex lg:flex-col xl:px-16"><div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-white"><MonoLogo className="h-6 w-6" color="#10143f" /></div><p className="text-[12px] font-black uppercase tracking-[0.18em]">Campus<span className="text-[#d7a23a]">Gadget</span></p></div><div className="my-auto max-w-[410px]"><p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#d7a23a]">Account recovery</p><h1 className="mt-6 text-[4.2rem] font-black leading-[0.94] tracking-[-0.07em]">Back to<br /><span className="text-[#d7a23a]">campus.</span></h1><p className="mt-7 text-[14px] leading-7 text-white/65">We’ll help you get back into your marketplace account securely.</p></div><p className="border-t border-white/15 pt-5 text-[11px] text-white/50">University email verification keeps accounts safe.</p></section><main className="flex min-h-screen flex-1 flex-col px-5 py-6 sm:px-10 lg:px-16 xl:px-24"><button onClick={() => navigate('/login')} className="flex items-center gap-2 self-start text-[11px] font-black uppercase tracking-[0.12em] text-[#817c72]"><span className="grid h-9 w-9 place-items-center rounded-full border border-[#e5e1d8] bg-white"><ArrowLeft className="h-4 w-4" /></span> Back to login</button><div className="mx-auto flex w-full max-w-[450px] flex-1 flex-col justify-center py-10">{submitted ? <div><div className="mb-6 grid h-14 w-14 place-items-center rounded-2xl bg-[#eef8ef]"><CheckCircle2 className="h-6 w-6 text-[#30924a]" /></div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#c89036]">Email sent</p><h1 className="mt-4 text-[2.8rem] font-black leading-[0.98] tracking-[-0.06em]">Check your<br />inbox.</h1><p className="mt-5 text-[13px] leading-6 text-[#77736c]">We sent a reset link to <strong className="text-[#10143f]">{email}</strong>. It will expire in 15 minutes.</p><button onClick={() => navigate('/login')} className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#10143f] py-4 text-[11px] font-black uppercase tracking-[0.13em] text-[#d7a23a]">Back to login <ArrowUpRight className="h-4 w-4" /></button><button onClick={() => setSubmitted(false)} className="mt-5 w-full text-center text-[12px] font-bold text-[#817c72] underline decoration-[#c89036] underline-offset-4">Use a different email</button></div> : <div><div className="mb-6 grid h-12 w-12 place-items-center rounded-2xl bg-[#f7efdF] text-[#c89036]"><Mail className="h-5 w-5" /></div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#c89036]">Password recovery</p><h1 className="mt-4 text-[2.8rem] font-black leading-[0.98] tracking-[-0.06em]">Reset your<br />password.</h1><p className="mt-5 text-[13px] leading-6 text-[#77736c]">Enter the University of Ghana email linked to your account and we’ll send a secure reset link.</p><form onSubmit={(event) => { event.preventDefault(); if (valid) setSubmitted(true); }} className="mt-8"><label className="mb-2 block text-[10px] font-black uppercase tracking-[0.18em] text-[#aaa59c]">University email</label><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@st.ug.edu.gh" className={'w-full rounded-2xl border bg-white px-4 py-3.5 text-[13px] outline-none transition focus:border-[#c89036] focus:ring-4 focus:ring-[#f7efdF] ' + (email && !valid ? 'border-[#e36b52]' : 'border-[#e5e1d8]')} />{email && !valid && <p className="mt-2 text-[11px] text-[#c34f3b]">Use your st.ug.edu.gh email address.</p>}<button type="submit" disabled={!valid} className={'mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[11px] font-black uppercase tracking-[0.13em] ' + (valid ? 'bg-[#10143f] text-[#d7a23a]' : 'cursor-not-allowed bg-[#e5e1d8] text-[#aaa59c]')}>Send reset link <ArrowUpRight className="h-4 w-4" /></button></form><div className="mt-6 flex gap-2 rounded-2xl bg-[#f7efdF] px-4 py-3.5 text-[11px] leading-5 text-[#c89036]"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" /> Reset links only work for verified student accounts.</div></div>}</div></main></div></div>;
 }
