@@ -1,110 +1,32 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, ArrowUpRight, Eye, EyeOff, ShieldCheck, Sparkles } from 'lucide-react';
 import { apiRequest } from '../../lib/api';
-import PageHeader from '../../components/PageHeader';
+import MonoLogo from '../../components/MonoLogo';
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  async function handleSubmit(event) {
+    event.preventDefault();
     setError('');
     setLoading(true);
-
     try {
-      const data = await apiRequest('/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      });
-
+      const data = await apiRequest('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-
       navigate('/home');
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  return (
-    <div className="min-h-screen bg-white flex flex-col font-body">
-      <PageHeader onBack={() => navigate('/welcome')} />
-
-      <div className="flex-1 flex flex-col px-6 pt-6 pb-8 max-w-sm mx-auto w-full">
-        <h1 className="font-display text-[1.9rem] font-semibold text-navy leading-tight mb-3">
-          Welcome back
-        </h1>
-        <p className="text-slate text-[14.5px] mb-10 leading-relaxed">
-          Log in to continue buying and selling on your campus.
-        </p>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-6">
-            <p className="text-red-600 text-[13px] font-medium">{error}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1">
-          <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-            University Email
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@st.ug.edu.gh"
-            required
-            className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors mb-6"
-          />
-
-          <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-            Password
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-            className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors"
-          />
-
-          <button
-            type="button"
-            onClick={() => navigate('/forgot-password')}
-            className="self-end text-gold-deep text-[13px] font-semibold mt-3"
-          >
-            Forgot password?
-          </button>
-
-          <div className="flex-1" />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-navy text-gold font-bold tracking-[0.1em] text-sm py-4 rounded-full active:scale-[0.98] hover:bg-navy-light transition disabled:opacity-50"
-          >
-            {loading ? 'LOGGING IN...' : 'LOG IN'}
-          </button>
-
-          <p className="text-center text-mute text-[13.5px] mt-6">
-            New to CampusGadget?{' '}
-            <button
-              type="button"
-              onClick={() => navigate('/signup')}
-              className="text-navy font-semibold underline decoration-gold decoration-2 underline-offset-2"
-            >
-              Create account
-            </button>
-          </p>
-        </form>
-      </div>
-    </div>
-  );
+  return <div className="min-h-screen bg-[#fbfaf7] font-body text-[#10143f]"><div className="mx-auto flex min-h-screen max-w-[1440px] flex-col lg:flex-row"><section className="relative hidden min-h-screen w-[46%] overflow-hidden bg-[#10143f] px-10 py-10 text-white lg:flex lg:flex-col xl:px-16"><div className="absolute -right-28 top-12 h-[390px] w-[390px] rounded-full border-[46px] border-white/5" /><div className="absolute -bottom-24 -left-24 h-[310px] w-[310px] rounded-full border-[35px] border-[#d7a23a]/10" /><div className="relative flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-white"><MonoLogo className="h-6 w-6" color="#10143f" /></div><div><p className="text-[12px] font-black uppercase tracking-[0.18em]">Campus<span className="text-[#d7a23a]">Gadget</span></p><p className="mt-0.5 text-[9px] text-white/55">University of Ghana marketplace</p></div></div><div className="relative my-auto max-w-[480px]"><div className="mb-7 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#d7a23a]"><Sparkles className="h-4 w-4" /> Welcome back to campus</div><h1 className="text-[4.5rem] font-black leading-[0.94] tracking-[-0.07em]">Good gadgets.<br /><span className="text-[#d7a23a]">Better handoffs.</span></h1><p className="mt-7 max-w-[380px] text-[14px] leading-7 text-white/65">Your trusted space to find useful tech, connect with verified students, and keep good things moving around campus.</p><div className="mt-10 flex items-center gap-3"><div className="flex -space-x-2"><span className="grid h-9 w-9 place-items-center rounded-full border-2 border-[#10143f] bg-[#d9b178] text-[10px] font-black text-[#10143f]">AK</span><span className="grid h-9 w-9 place-items-center rounded-full border-2 border-[#10143f] bg-[#e8cfc1] text-[10px] font-black text-[#10143f]">PM</span><span className="grid h-9 w-9 place-items-center rounded-full border-2 border-[#10143f] bg-[#b8c5d9] text-[10px] font-black text-[#10143f]">YS</span></div><p className="text-[11px] font-bold text-white/70">Built for the student community</p></div></div><div className="relative flex items-center gap-2 border-t border-white/15 pt-5 text-[11px] text-white/55"><ShieldCheck className="h-4 w-4 text-[#d7a23a]" /> University email verification keeps the marketplace close to campus.</div></section><main className="flex min-h-screen flex-1 flex-col px-5 py-6 sm:px-10 lg:px-16 xl:px-24"><div className="flex items-center justify-between"><button onClick={() => navigate('/welcome')} className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#817c72] transition hover:text-[#10143f]"><span className="grid h-9 w-9 place-items-center rounded-full border border-[#e5e1d8] bg-white"><ArrowLeft className="h-4 w-4" /></span> Back</button><div className="flex items-center gap-2 lg:hidden"><div className="grid h-8 w-8 place-items-center rounded-lg border border-[#e5e1d8] bg-white"><MonoLogo className="h-5 w-5" color="#10143f" /></div><p className="text-[11px] font-black uppercase tracking-[0.15em]">Campus<span className="text-[#c89036]">Gadget</span></p></div></div><div className="mx-auto flex w-full max-w-[440px] flex-1 flex-col justify-center py-12"><div className="mb-8"><p className="mb-3 text-[10px] font-black uppercase tracking-[0.22em] text-[#c89036]">University of Ghana · student market</p><h2 className="text-[2.7rem] font-black leading-[0.98] tracking-[-0.065em] sm:text-[3.4rem]">Welcome<br />back.</h2><p className="mt-5 max-w-[360px] text-[13px] leading-6 text-[#77736c]">Log in to continue buying and selling useful gadgets on campus.</p></div>{error && <div className="mb-5 rounded-2xl border border-[#f2c9bf] bg-[#fff5f2] px-4 py-3 text-[12px] font-medium text-[#c34f3b]">{error}</div>}<form onSubmit={handleSubmit} className="space-y-5"><div><label className="mb-2 block text-[10px] font-black uppercase tracking-[0.18em] text-[#aaa59c]">University email</label><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@st.ug.edu.gh" required className="w-full rounded-2xl border border-[#e5e1d8] bg-white px-4 py-3.5 text-[13px] outline-none transition focus:border-[#c89036] focus:ring-4 focus:ring-[#f7efdF] placeholder:text-[#b1aca3]" /></div><div><div className="mb-2 flex items-center justify-between"><label className="block text-[10px] font-black uppercase tracking-[0.18em] text-[#aaa59c]">Password</label><button type="button" onClick={() => navigate('/forgot-password')} className="text-[11px] font-black text-[#c89036]">Forgot password?</button></div><div className="relative"><input type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" required className="w-full rounded-2xl border border-[#e5e1d8] bg-white px-4 py-3.5 pr-12 text-[13px] outline-none transition focus:border-[#c89036] focus:ring-4 focus:ring-[#f7efdF] placeholder:text-[#b1aca3]" /><button type="button" onClick={() => setShowPassword((show) => !show)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#817c72]" aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div></div><button type="submit" disabled={loading} className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-[#10143f] py-4 text-[11px] font-black uppercase tracking-[0.14em] text-[#d7a23a] transition hover:bg-[#c89036] hover:text-[#10143f] disabled:opacity-50">{loading ? 'Logging in…' : 'Log in'}<ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></button></form><div className="my-8 flex items-center gap-3"><div className="h-px flex-1 bg-[#e5e1d8]" /><span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#aaa59c]">New here?</span><div className="h-px flex-1 bg-[#e5e1d8]" /></div><button type="button" onClick={() => navigate('/signup')} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[#e5e1d8] bg-white py-3.5 text-[11px] font-black uppercase tracking-[0.12em] text-[#10143f] transition hover:border-[#c89036]">Create your account <ArrowUpRight className="h-4 w-4 text-[#c89036]" /></button><p className="mt-6 text-center text-[11px] leading-5 text-[#aaa59c]">By continuing, you agree to keep Campus Gadget a respectful student marketplace.</p></div></main></div></div>;
 }

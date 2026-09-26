@@ -1,123 +1,33 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, ArrowUpRight, Eye, EyeOff, MailCheck, ShieldCheck, UserRound } from 'lucide-react';
 import { apiRequest } from '../../lib/api';
-import PageHeader from '../../components/PageHeader';
+import MonoLogo from '../../components/MonoLogo';
 
 export default function SignUp() {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  async function handleSubmit(event) {
+    event.preventDefault();
     setError('');
     setLoading(true);
-
     try {
-      const data = await apiRequest('/api/auth/signup', {
-        method: 'POST',
-        body: JSON.stringify({ fullName, email, password }),
-      });
-
+      const data = await apiRequest('/api/auth/signup', { method: 'POST', body: JSON.stringify({ fullName, email, password }) });
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-
       navigate('/verify-otp');
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  return (
-    <div className="min-h-screen bg-white flex flex-col font-body">
-      <PageHeader onBack={() => navigate('/welcome')} />
-
-      <div className="flex-1 px-6 pt-6 pb-8 max-w-sm mx-auto w-full">
-        <h1 className="font-display text-[1.9rem] font-semibold text-navy leading-tight mb-3">
-          Create your account
-        </h1>
-        <p className="text-slate text-[14.5px] mb-9 leading-relaxed">
-          You'll verify with your University of Ghana email before you can list or message.
-        </p>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-6">
-            <p className="text-red-600 text-[13px] font-medium">{error}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-              Full Name
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="e.g. Paa Kwesi Aidoo"
-              required
-              className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-              University Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@st.ug.edu.gh"
-              required
-              className="w-full bg-transparent border-b-2 border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors"
-            />
-            <p className="text-gold-deep text-[11.5px] font-semibold mt-1.5">
-              We'll send a one-time code to verify this address.
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold tracking-[0.15em] uppercase text-mute mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              minLength={6}
-              className="w-full bg-transparent border-b-2 border-line focus:border-gold-deep outline-none py-2.5 text-navy placeholder-mute transition-colors"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-navy text-gold font-bold tracking-[0.1em] text-sm py-4 rounded-full active:scale-[0.98] hover:bg-navy-light transition mt-4 disabled:opacity-50"
-          >
-            {loading ? 'CREATING ACCOUNT...' : 'SEND VERIFICATION CODE'}
-          </button>
-
-          <p className="text-center text-mute text-[13.5px]">
-            Already have an account?{' '}
-            <button
-              type="button"
-              onClick={() => navigate('/login')}
-              className="text-navy font-semibold underline decoration-gold decoration-2 underline-offset-2"
-            >
-              Log in
-            </button>
-          </p>
-        </form>
-      </div>
-    </div>
-  );
+  return <div className="min-h-screen bg-[#fbfaf7] font-body text-[#10143f]"><div className="mx-auto flex min-h-screen max-w-[1440px] flex-col lg:flex-row"><section className="relative hidden min-h-screen w-[42%] overflow-hidden bg-[#10143f] px-10 py-10 text-white lg:flex lg:flex-col xl:px-16"><div className="absolute -bottom-24 -right-24 h-80 w-80 rounded-full border-[40px] border-[#d7a23a]/10" /><div className="relative flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-white"><MonoLogo className="h-6 w-6" color="#10143f" /></div><div><p className="text-[12px] font-black uppercase tracking-[0.18em]">Campus<span className="text-[#d7a23a]">Gadget</span></p><p className="mt-0.5 text-[9px] text-white/55">Student marketplace</p></div></div><div className="relative my-auto max-w-[430px]"><p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#d7a23a]">Step 01 · Join the community</p><h1 className="mt-6 text-[4.3rem] font-black leading-[0.94] tracking-[-0.07em]">Your campus.<br /><span className="text-[#d7a23a]">Your market.</span></h1><p className="mt-7 text-[14px] leading-7 text-white/65">Create an account with your university email and start finding useful tech from people around you.</p><div className="mt-10 space-y-4"><div className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 text-[#d7a23a]"><ShieldCheck className="h-4 w-4" /></span><div><p className="text-[11px] font-black">Verified students only</p><p className="mt-0.5 text-[10px] text-white/50">Your email keeps the marketplace close.</p></div></div><div className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 text-[#d7a23a]"><MailCheck className="h-4 w-4" /></span><div><p className="text-[11px] font-black">Quick email verification</p><p className="mt-0.5 text-[10px] text-white/50">We will send one code to confirm your address.</p></div></div></div></div><p className="relative border-t border-white/15 pt-5 text-[11px] text-white/50">Buy · sell · connect at the University of Ghana</p></section><main className="flex min-h-screen flex-1 flex-col px-5 py-6 sm:px-10 lg:px-16 xl:px-24"><div className="flex items-center justify-between"><button onClick={() => navigate('/welcome')} className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#817c72] transition hover:text-[#10143f]"><span className="grid h-9 w-9 place-items-center rounded-full border border-[#e5e1d8] bg-white"><ArrowLeft className="h-4 w-4" /></span> Back</button><div className="flex items-center gap-2 lg:hidden"><div className="grid h-8 w-8 place-items-center rounded-lg border border-[#e5e1d8] bg-white"><MonoLogo className="h-5 w-5" color="#10143f" /></div><p className="text-[11px] font-black uppercase tracking-[0.15em]">Campus<span className="text-[#c89036]">Gadget</span></p></div></div><div className="mx-auto flex w-full max-w-[470px] flex-1 flex-col justify-center py-10"><div className="mb-7"><div className="mb-4 flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f7efdF] text-[#c89036]"><UserRound className="h-4 w-4" /></span><span className="text-[10px] font-black uppercase tracking-[0.18em] text-[#c89036]">Create your account</span></div><h2 className="text-[2.55rem] font-black leading-[0.98] tracking-[-0.06em] sm:text-[3.3rem]">Join the<br />marketplace.</h2><p className="mt-5 max-w-[370px] text-[13px] leading-6 text-[#77736c]">Use your University of Ghana email to get started. You will verify it on the next step.</p></div><div className="mb-6 flex items-center gap-2"><span className="h-1.5 w-16 rounded-full bg-[#c89036]" /><span className="h-1.5 w-16 rounded-full bg-[#e5e1d8]" /><span className="ml-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#aaa59c]">1 of 2</span></div>{error && <div className="mb-5 rounded-2xl border border-[#f2c9bf] bg-[#fff5f2] px-4 py-3 text-[12px] font-medium text-[#c34f3b]">{error}</div>}<form onSubmit={handleSubmit} className="space-y-4"><div><label className="mb-2 block text-[10px] font-black uppercase tracking-[0.18em] text-[#aaa59c]">Full name</label><input type="text" value={fullName} onChange={(event) => setFullName(event.target.value)} placeholder="e.g. Paa Kwesi Aidoo" required className="w-full rounded-2xl border border-[#e5e1d8] bg-white px-4 py-3.5 text-[13px] outline-none transition focus:border-[#c89036] focus:ring-4 focus:ring-[#f7efdF] placeholder:text-[#b1aca3]" /></div><div><label className="mb-2 block text-[10px] font-black uppercase tracking-[0.18em] text-[#aaa59c]">University email</label><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@st.ug.edu.gh" required className="w-full rounded-2xl border border-[#e5e1d8] bg-white px-4 py-3.5 text-[13px] outline-none transition focus:border-[#c89036] focus:ring-4 focus:ring-[#f7efdF] placeholder:text-[#b1aca3]" /><p className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-[#c89036]"><MailCheck className="h-3.5 w-3.5" /> We will send a one-time verification code.</p></div><div><label className="mb-2 block text-[10px] font-black uppercase tracking-[0.18em] text-[#aaa59c]">Password</label><div className="relative"><input type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="At least 6 characters" required minLength={6} className="w-full rounded-2xl border border-[#e5e1d8] bg-white px-4 py-3.5 pr-12 text-[13px] outline-none transition focus:border-[#c89036] focus:ring-4 focus:ring-[#f7efdF] placeholder:text-[#b1aca3]" /><button type="button" onClick={() => setShowPassword((show) => !show)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#817c72]" aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div></div><button type="submit" disabled={loading} className="group mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#10143f] py-4 text-[11px] font-black uppercase tracking-[0.13em] text-[#d7a23a] transition hover:bg-[#c89036] hover:text-[#10143f] disabled:opacity-50">{loading ? 'Creating account…' : 'Continue to verification'}<ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></button></form><p className="mt-7 text-center text-[12px] text-[#aaa59c]">Already have an account? <button type="button" onClick={() => navigate('/login')} className="font-black text-[#10143f] underline decoration-[#c89036] decoration-2 underline-offset-4">Log in</button></p></div></main></div></div>;
 }
