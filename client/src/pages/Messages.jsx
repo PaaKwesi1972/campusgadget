@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MessageCircle, ArrowUpRight, BadgeCheck, Clock3, SlidersHorizontal } from 'lucide-react';
+import { Search, MessageCircle, ArrowUpRight, ArrowLeft, BadgeCheck, Clock3, SlidersHorizontal } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useUnreadCount } from '../hooks/useUnreadCount';
 import PageLoader from '../components/PageLoader';
@@ -61,13 +61,16 @@ export default function Messages() {
     <div className="min-h-[calc(100vh-72px)] bg-[#fbfaf7] px-5 py-7 font-body text-[#10143f] sm:px-8 lg:px-10 lg:py-10">
       <div className="mx-auto max-w-[1120px]">
         <section className="mb-8 flex flex-col gap-5 border-b border-[#e5e1d8] pb-8 md:flex-row md:items-end md:justify-between">
-          <div>
+          <div className="flex items-start gap-4">
+            <button onClick={() => navigate('/home')} className="mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#e5e1d8] bg-white text-[#817c72] transition hover:border-[#c89036] hover:text-[#10143f]" aria-label="Back to home"><ArrowLeft className="h-4 w-4" /></button>
+            <div>
             <p className="mb-2 text-[10px] font-black uppercase tracking-[0.22em] text-[#c89036]">Your conversations</p>
             <div className="flex items-center gap-3">
               <h1 className="font-body text-[2.25rem] font-black tracking-[-0.045em] sm:text-[3rem]">Messages</h1>
               {unreadCount > 0 && <span className="rounded-full bg-[#10143f] px-2.5 py-1 text-[10px] font-black text-[#d7a23a]">{unreadCount} new</span>}
             </div>
             <p className="mt-2 max-w-[520px] text-[13px] leading-6 text-[#77736c]">Keep track of buyers, sellers, and the gadgets you are arranging to meet up for.</p>
+            </div>
           </div>
           <button onClick={() => navigate('/home')} className="hidden items-center gap-2 self-start rounded-full border border-[#e5e1d8] bg-white px-4 py-2.5 text-[11px] font-black text-[#10143f] transition hover:border-[#c89036] md:flex"><MessageCircle className="h-4 w-4 text-[#c89036]" /> Browse marketplace <ArrowUpRight className="h-3.5 w-3.5" /></button>
         </section>
