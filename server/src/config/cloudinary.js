@@ -33,3 +33,4 @@ export const documentStorage = new CloudinaryStorage({
 });
 
 export default cloudinary;
+
